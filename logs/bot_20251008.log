@@ -1,0 +1,248 @@
+2025-10-08 18:53:00 | INFO     | discord_bot | main:74 | Initializing database connection...
+2025-10-08 18:53:04 | INFO     | discord_bot | init_database:43 | ✓ Database connection established successfully
+2025-10-08 18:53:04 | INFO     | discord_bot | main:79 | Database initialized successfully!
+2025-10-08 18:53:04 | INFO     | discord_bot | main:85 | Starting bot...
+2025-10-08 18:53:06 | INFO     | discord_bot | setup_hook:34 | Loading cogs...
+2025-10-08 18:53:06 | ERROR    | discord_bot | setup_hook:43 | ✗ Failed to load cogs.auth: Extension 'cogs.auth' raised an error: ModuleNotFoundError: No module named 'models.server_config'
+2025-10-08 18:53:06 | ERROR    | discord_bot | setup_hook:43 | ✗ Failed to load cogs.logout: Extension 'cogs.logout' raised an error: ModuleNotFoundError: No module named 'models.server_config'
+2025-10-08 18:53:06 | INFO     | discord_bot | setup_hook:45 | All cogs loaded successfully!
+2025-10-08 18:53:09 | INFO     | discord_bot | on_ready:49 | Bot logged in as Auth Handler#8663 (ID: 1413482384996696216)
+2025-10-08 18:53:09 | INFO     | discord_bot | on_ready:50 | Connected to 1 guild(s)
+2025-10-08 18:53:10 | INFO     | discord_bot | on_ready:55 | Synced 0 command(s)
+2025-10-08 18:56:32 | INFO     | discord_bot | main:93 | Bot shut down successfully
+2025-10-08 18:56:32 | INFO     | discord_bot | <module>:100 | Bot terminated by user
+2025-10-08 18:56:36 | INFO     | discord_bot | main:88 | Initializing database connection...
+2025-10-08 18:56:38 | INFO     | discord_bot | init_database:43 | ✓ Database connection established successfully
+2025-10-08 18:56:38 | INFO     | discord_bot | main:93 | Database initialized successfully!
+2025-10-08 18:56:38 | INFO     | discord_bot | main:99 | Starting bot...
+2025-10-08 18:56:40 | INFO     | discord_bot | setup_hook:30 | Loading cogs...
+2025-10-08 18:56:40 | ERROR    | discord_bot | setup_hook:39 | ✗ Failed to load cogs.auth: Extension 'cogs.auth' raised an error: ModuleNotFoundError: No module named 'models.server_config'
+2025-10-08 18:56:40 | ERROR    | discord_bot | setup_hook:39 | ✗ Failed to load cogs.logout: Extension 'cogs.logout' raised an error: ModuleNotFoundError: No module named 'models.server_config'
+2025-10-08 18:56:40 | INFO     | discord_bot | setup_hook:41 | All cogs loaded successfully!
+2025-10-08 18:56:43 | INFO     | discord_bot | on_ready:45 | Bot logged in as Auth Handler#8663 (ID: 1413482384996696216)
+2025-10-08 18:56:43 | INFO     | discord_bot | on_ready:46 | Connected to 1 guild(s)
+2025-10-08 18:56:43 | INFO     | discord_bot | on_ready:50 |   - Bot Testing (ID: 1371483878371627139)
+2025-10-08 18:56:43 | INFO     | discord_bot | on_ready:54 | Syncing commands globally...
+2025-10-08 18:56:43 | INFO     | discord_bot | on_ready:56 | ✓ Synced 0 global command(s)
+2025-10-08 18:56:44 | INFO     | discord_bot | on_ready:62 | ✓ Synced 0 command(s) to guild: Bot Testing
+2025-10-08 18:56:44 | INFO     | discord_bot | on_ready:78 | Bot is ready!
+2025-10-08 18:58:40 | INFO     | discord_bot | main:107 | Bot shut down successfully
+2025-10-08 18:58:40 | INFO     | discord_bot | <module>:114 | Bot terminated by user
+2025-10-08 18:59:37 | INFO     | discord_bot | main:88 | Initializing database connection...
+2025-10-08 18:59:40 | INFO     | discord_bot | init_database:43 | ✓ Database connection established successfully
+2025-10-08 18:59:40 | INFO     | discord_bot | main:93 | Database initialized successfully!
+2025-10-08 18:59:40 | INFO     | discord_bot | main:99 | Starting bot...
+2025-10-08 18:59:42 | INFO     | discord_bot | setup_hook:30 | Loading cogs...
+2025-10-08 18:59:42 | ERROR    | discord_bot | setup_hook:39 | ✗ Failed to load cogs.auth: Extension 'cogs.auth' raised an error: SyntaxError: invalid syntax. Perhaps you forgot a comma? (modals.py, line 37)
+2025-10-08 18:59:42 | INFO     | discord_bot | __init__:25 | LogoutCog initialized
+2025-10-08 18:59:42 | INFO     | discord_bot | setup:227 | LogoutCog loaded successfully
+2025-10-08 18:59:42 | INFO     | discord_bot | setup_hook:37 | ✓ Loaded cogs.logout
+2025-10-08 18:59:42 | INFO     | discord_bot | setup_hook:41 | All cogs loaded successfully!
+2025-10-08 18:59:46 | INFO     | discord_bot | on_ready:45 | Bot logged in as Auth Handler#8663 (ID: 1413482384996696216)
+2025-10-08 18:59:46 | INFO     | discord_bot | on_ready:46 | Connected to 1 guild(s)
+2025-10-08 18:59:46 | INFO     | discord_bot | on_ready:50 |   - Bot Testing (ID: 1371483878371627139)
+2025-10-08 18:59:46 | INFO     | discord_bot | on_ready:54 | Syncing commands globally...
+2025-10-08 18:59:46 | INFO     | discord_bot | on_ready:32 | Logout persistent views registered
+2025-10-08 18:59:47 | INFO     | discord_bot | on_ready:56 | ✓ Synced 2 global command(s)
+2025-10-08 18:59:48 | INFO     | discord_bot | on_ready:62 | ✓ Synced 0 command(s) to guild: Bot Testing
+2025-10-08 18:59:48 | INFO     | discord_bot | on_ready:78 | Bot is ready!
+2025-10-08 19:04:50 | INFO     | discord_bot | main:107 | Bot shut down successfully
+2025-10-08 19:04:50 | INFO     | discord_bot | <module>:114 | Bot terminated by user
+2025-10-08 19:04:54 | INFO     | discord_bot | main:88 | Initializing database connection...
+2025-10-08 19:04:57 | INFO     | discord_bot | init_database:43 | ✓ Database connection established successfully
+2025-10-08 19:04:57 | INFO     | discord_bot | main:93 | Database initialized successfully!
+2025-10-08 19:04:57 | INFO     | discord_bot | main:99 | Starting bot...
+2025-10-08 19:04:59 | INFO     | discord_bot | setup_hook:30 | Loading cogs...
+2025-10-08 19:04:59 | INFO     | discord_bot | __init__:29 | AuthCog initialized
+2025-10-08 19:04:59 | INFO     | discord_bot | setup:361 | AuthCog loaded successfully
+2025-10-08 19:04:59 | INFO     | discord_bot | setup_hook:37 | ✓ Loaded cogs.auth
+2025-10-08 19:04:59 | INFO     | discord_bot | __init__:25 | LogoutCog initialized
+2025-10-08 19:04:59 | INFO     | discord_bot | setup:227 | LogoutCog loaded successfully
+2025-10-08 19:04:59 | INFO     | discord_bot | setup_hook:37 | ✓ Loaded cogs.logout
+2025-10-08 19:04:59 | INFO     | discord_bot | setup_hook:41 | All cogs loaded successfully!
+2025-10-08 19:05:04 | INFO     | discord_bot | on_ready:45 | Bot logged in as Auth Handler#8663 (ID: 1413482384996696216)
+2025-10-08 19:05:04 | INFO     | discord_bot | on_ready:46 | Connected to 1 guild(s)
+2025-10-08 19:05:04 | INFO     | discord_bot | on_ready:50 |   - Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:05:04 | INFO     | discord_bot | on_ready:54 | Syncing commands globally...
+2025-10-08 19:05:04 | INFO     | discord_bot | on_ready:36 | Auth persistent views registered
+2025-10-08 19:05:04 | INFO     | discord_bot | on_ready:32 | Logout persistent views registered
+2025-10-08 19:05:04 | INFO     | discord_bot | on_ready:56 | ✓ Synced 5 global command(s)
+2025-10-08 19:05:05 | INFO     | discord_bot | on_ready:62 | ✓ Synced 0 command(s) to guild: Bot Testing
+2025-10-08 19:05:05 | INFO     | discord_bot | on_ready:78 | Bot is ready!
+2025-10-08 19:09:27 | INFO     | discord_bot | main:107 | Bot shut down successfully
+2025-10-08 19:09:27 | INFO     | discord_bot | <module>:114 | Bot terminated by user
+2025-10-08 19:09:31 | INFO     | discord_bot | main:91 | Initializing database connection...
+2025-10-08 19:09:34 | INFO     | discord_bot | init_database:43 | ✓ Database connection established successfully
+2025-10-08 19:09:34 | INFO     | discord_bot | main:96 | Database initialized successfully!
+2025-10-08 19:09:34 | INFO     | discord_bot | main:210 | Starting bot...
+2025-10-08 19:09:36 | INFO     | discord_bot | setup_hook:30 | Loading cogs...
+2025-10-08 19:09:36 | INFO     | discord_bot | __init__:29 | AuthCog initialized
+2025-10-08 19:09:36 | INFO     | discord_bot | setup:361 | AuthCog loaded successfully
+2025-10-08 19:09:36 | INFO     | discord_bot | setup_hook:37 | ✓ Loaded cogs.auth
+2025-10-08 19:09:36 | INFO     | discord_bot | __init__:25 | LogoutCog initialized
+2025-10-08 19:09:36 | INFO     | discord_bot | setup:227 | LogoutCog loaded successfully
+2025-10-08 19:09:36 | INFO     | discord_bot | setup_hook:37 | ✓ Loaded cogs.logout
+2025-10-08 19:09:36 | INFO     | discord_bot | setup_hook:41 | All cogs loaded successfully!
+2025-10-08 19:09:39 | INFO     | discord_bot | on_ready:45 | Bot logged in as Auth Handler#8663 (ID: 1413482384996696216)
+2025-10-08 19:09:39 | INFO     | discord_bot | on_ready:46 | Connected to 1 guild(s)
+2025-10-08 19:09:39 | INFO     | discord_bot | on_ready:50 |   - Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:09:39 | INFO     | discord_bot | on_ready:54 | Syncing commands globally...
+2025-10-08 19:09:39 | INFO     | discord_bot | on_ready:36 | Auth persistent views registered
+2025-10-08 19:09:39 | INFO     | discord_bot | on_ready:32 | Logout persistent views registered
+2025-10-08 19:09:41 | INFO     | discord_bot | on_ready:56 | ✓ Synced 5 global command(s)
+2025-10-08 19:09:42 | INFO     | discord_bot | on_ready:62 | ✓ Synced 0 command(s) to guild: Bot Testing
+2025-10-08 19:09:42 | INFO     | discord_bot | on_ready:78 | Bot is ready!
+2025-10-08 19:09:42 | INFO     | discord_bot | on_ready:79 | ==================================================
+2025-10-08 19:09:42 | INFO     | discord_bot | on_ready:80 | Use !sync command to manually sync slash commands
+2025-10-08 19:09:42 | INFO     | discord_bot | on_ready:81 | ==================================================
+2025-10-08 19:10:41 | INFO     | discord_bot | sync:133 | Commands manually synced by mod.hunter in Bot Testing
+2025-10-08 19:12:41 | INFO     | discord_bot | create_or_update_config:84 | Server config saved for guild 1371483878371627139
+2025-10-08 19:12:42 | ERROR    | discord_bot | set_login_channel:82 | Error in set_login_channel: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\auth.py", line 66, in set_login_channel
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 19:12:49 | INFO     | discord_bot | create_or_update_config:84 | Server config saved for guild 1371483878371627139
+2025-10-08 19:12:50 | INFO     | discord_bot | set_login_channel:71 | Login channel set to login (ID: 1425485884114866216) in guild Bot Testing (ID: 1371483878371627139) by mod.hunter
+2025-10-08 19:12:57 | INFO     | discord_bot | create_or_update_config:84 | Server config saved for guild 1371483878371627139
+2025-10-08 19:12:58 | INFO     | discord_bot | set_logout_channel:66 | Logout channel set to logout (ID: 1425485907250905140) in guild Bot Testing (ID: 1371483878371627139) by mod.hunter
+2025-10-08 19:13:13 | INFO     | discord_bot | setup_auth:139 | Auth embed setup by mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:13:23 | INFO     | discord_bot | setup_logout:134 | Logout embed setup by mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:13:33 | INFO     | discord_bot | handle_signup:290 | Signup modal shown to mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:13:57 | INFO     | discord_bot | handle_signup:290 | Signup modal shown to mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:14:00 | INFO     | discord_bot | handle_login:343 | Login modal shown to mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:14:05 | INFO     | discord_bot | handle_signup:290 | Signup modal shown to mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:26:59 | INFO     | discord_bot | main:218 | Bot shut down successfully
+2025-10-08 19:26:59 | INFO     | discord_bot | <module>:225 | Bot terminated by user
+2025-10-08 19:27:03 | INFO     | discord_bot | main:91 | Initializing database connection...
+2025-10-08 19:27:06 | INFO     | discord_bot | init_database:43 | ✓ Database connection established successfully
+2025-10-08 19:27:06 | INFO     | discord_bot | main:96 | Database initialized successfully!
+2025-10-08 19:27:06 | INFO     | discord_bot | main:210 | Starting bot...
+2025-10-08 19:27:09 | INFO     | discord_bot | setup_hook:30 | Loading cogs...
+2025-10-08 19:27:10 | INFO     | discord_bot | __init__:394 | AuthCog initialized
+2025-10-08 19:27:10 | INFO     | discord_bot | setup:1064 | AuthCog loaded successfully
+2025-10-08 19:27:10 | INFO     | discord_bot | setup_hook:37 | ✓ Loaded cogs.auth
+2025-10-08 19:27:10 | INFO     | discord_bot | __init__:25 | LogoutCog initialized
+2025-10-08 19:27:10 | INFO     | discord_bot | setup:227 | LogoutCog loaded successfully
+2025-10-08 19:27:10 | INFO     | discord_bot | setup_hook:37 | ✓ Loaded cogs.logout
+2025-10-08 19:27:10 | INFO     | discord_bot | setup_hook:41 | All cogs loaded successfully!
+2025-10-08 19:27:12 | INFO     | discord_bot | on_ready:45 | Bot logged in as Auth Handler#8663 (ID: 1413482384996696216)
+2025-10-08 19:27:12 | INFO     | discord_bot | on_ready:46 | Connected to 1 guild(s)
+2025-10-08 19:27:12 | INFO     | discord_bot | on_ready:50 |   - Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:27:12 | INFO     | discord_bot | on_ready:54 | Syncing commands globally...
+2025-10-08 19:27:12 | INFO     | discord_bot | on_ready:401 | Auth persistent views registered
+2025-10-08 19:27:12 | INFO     | discord_bot | on_ready:32 | Logout persistent views registered
+2025-10-08 19:27:13 | INFO     | discord_bot | on_ready:56 | ✓ Synced 9 global command(s)
+2025-10-08 19:27:14 | INFO     | discord_bot | on_ready:62 | ✓ Synced 0 command(s) to guild: Bot Testing
+2025-10-08 19:27:14 | INFO     | discord_bot | on_ready:78 | Bot is ready!
+2025-10-08 19:27:14 | INFO     | discord_bot | on_ready:79 | ==================================================
+2025-10-08 19:27:14 | INFO     | discord_bot | on_ready:80 | Use !sync command to manually sync slash commands
+2025-10-08 19:27:14 | INFO     | discord_bot | on_ready:81 | ==================================================
+2025-10-08 19:28:16 | INFO     | discord_bot | sync:133 | Commands manually synced by mod.hunter in Bot Testing
+2025-10-08 19:32:10 | INFO     | discord_bot | add_role:54 | Added allowed role: Community Manager (ID: 1425490648584290405) in guild 1371483878371627139
+2025-10-08 19:32:11 | INFO     | discord_bot | add_signup_role:464 | Role Community Manager added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:32:20 | INFO     | discord_bot | add_role:54 | Added allowed role: Accountant (ID: 1425490835801116804) in guild 1371483878371627139
+2025-10-08 19:32:20 | INFO     | discord_bot | add_signup_role:464 | Role Accountant added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:32:28 | INFO     | discord_bot | add_role:54 | Added allowed role: Developer (ID: 1425490885105287291) in guild 1371483878371627139
+2025-10-08 19:32:29 | INFO     | discord_bot | add_signup_role:464 | Role Developer added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:32:38 | INFO     | discord_bot | add_role:54 | Added allowed role: Social Media Expert (ID: 1425490771464683642) in guild 1371483878371627139
+2025-10-08 19:32:38 | INFO     | discord_bot | add_signup_role:464 | Role Social Media Expert added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:32:45 | INFO     | discord_bot | add_role:54 | Added allowed role: Lead Generator (ID: 1425490706440519844) in guild 1371483878371627139
+2025-10-08 19:32:46 | INFO     | discord_bot | add_signup_role:464 | Role Lead Generator added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:33:16 | INFO     | discord_bot | clear_all_roles:170 | Cleared all allowed roles for guild 1371483878371627139
+2025-10-08 19:33:17 | INFO     | discord_bot | clear_signup_roles:628 | All signup roles cleared in guild Bot Testing by mod.hunter
+2025-10-08 19:33:31 | INFO     | discord_bot | add_role:54 | Added allowed role: Community Manager (ID: 1425490648584290405) in guild 1371483878371627139
+2025-10-08 19:33:32 | INFO     | discord_bot | add_signup_role:464 | Role Community Manager added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:33:47 | INFO     | discord_bot | remove_role:86 | Removed allowed role ID 1425490835801116804 from guild 1371483878371627139
+2025-10-08 19:33:48 | INFO     | discord_bot | remove_signup_role:512 | Role Accountant removed from signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:33:56 | INFO     | discord_bot | remove_role:86 | Removed allowed role ID 1425490648584290405 from guild 1371483878371627139
+2025-10-08 19:33:56 | INFO     | discord_bot | remove_signup_role:512 | Role Community Manager removed from signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:37:06 | INFO     | discord_bot | setup_logout:134 | Logout embed setup by mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:37:28 | INFO     | discord_bot | add_role:54 | Added allowed role: Community Manager (ID: 1425490648584290405) in guild 1371483878371627139
+2025-10-08 19:37:30 | INFO     | discord_bot | add_signup_role:464 | Role Community Manager added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:37:35 | INFO     | discord_bot | add_role:54 | Added allowed role: Accountant (ID: 1425490835801116804) in guild 1371483878371627139
+2025-10-08 19:37:35 | INFO     | discord_bot | add_signup_role:464 | Role Accountant added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:37:40 | INFO     | discord_bot | add_role:54 | Added allowed role: Lead Generator (ID: 1425490706440519844) in guild 1371483878371627139
+2025-10-08 19:37:40 | INFO     | discord_bot | add_signup_role:464 | Role Lead Generator added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:37:45 | INFO     | discord_bot | add_role:54 | Added allowed role: Social Media Expert (ID: 1425490771464683642) in guild 1371483878371627139
+2025-10-08 19:37:46 | INFO     | discord_bot | add_signup_role:464 | Role Social Media Expert added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:37:53 | INFO     | discord_bot | add_role:54 | Added allowed role: Developer (ID: 1425490885105287291) in guild 1371483878371627139
+2025-10-08 19:37:53 | INFO     | discord_bot | add_signup_role:464 | Role Developer added to signup options in guild Bot Testing by mod.hunter
+2025-10-08 19:38:25 | INFO     | discord_bot | setup_auth:798 | Auth embed setup by mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139) with 5 roles
+2025-10-08 19:38:32 | INFO     | discord_bot | handle_signup:992 | Signup modal shown to mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:39:04 | INFO     | discord_bot | create_user:64 | User created successfully: j*****e@gmail.com in guild 1371483878371627139
+2025-10-08 19:39:05 | INFO     | discord_bot | role_selected:554 | User mod.hunter (ID: 947795908119109652) signed up with role Developer in guild 1371483878371627139
+2025-10-08 19:41:46 | INFO     | discord_bot | handle_login:1046 | Login modal shown to mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:41:59 | INFO     | discord_bot | authenticate_user:129 | User authenticated successfully: j*****e@gmail.com in guild 1371483878371627139
+2025-10-08 19:42:00 | INFO     | discord_bot | on_submit:866 | User mod.hunter (ID: 947795908119109652) logged in successfully to guild 1371483878371627139
+2025-10-08 19:42:14 | INFO     | discord_bot | setup_logout:134 | Logout embed setup by mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:42:18 | INFO     | discord_bot | handle_logout:197 | User mod.hunter (ID: 947795908119109652) logged out from guild Bot Testing (ID: 1371483878371627139). Removed roles: ['Developer']
+2025-10-08 19:48:32 | INFO     | discord_bot | main:218 | Bot shut down successfully
+2025-10-08 19:48:32 | INFO     | discord_bot | <module>:225 | Bot terminated by user
+2025-10-08 19:48:37 | INFO     | discord_bot | main:91 | Initializing database connection...
+2025-10-08 19:48:41 | INFO     | discord_bot | init_database:43 | ✓ Database connection established successfully
+2025-10-08 19:48:41 | INFO     | discord_bot | main:96 | Database initialized successfully!
+2025-10-08 19:48:41 | INFO     | discord_bot | main:210 | Starting bot...
+2025-10-08 19:48:43 | INFO     | discord_bot | setup_hook:30 | Loading cogs...
+2025-10-08 19:48:43 | INFO     | discord_bot | __init__:394 | AuthCog initialized
+2025-10-08 19:48:43 | INFO     | discord_bot | setup:1064 | AuthCog loaded successfully
+2025-10-08 19:48:43 | INFO     | discord_bot | setup_hook:37 | ✓ Loaded cogs.auth
+2025-10-08 19:48:43 | INFO     | discord_bot | __init__:25 | LogoutCog initialized
+2025-10-08 19:48:43 | INFO     | discord_bot | setup:149 | LogoutCog loaded successfully
+2025-10-08 19:48:43 | INFO     | discord_bot | setup_hook:37 | ✓ Loaded cogs.logout
+2025-10-08 19:48:43 | INFO     | discord_bot | setup_hook:41 | All cogs loaded successfully!
+2025-10-08 19:48:47 | INFO     | discord_bot | on_ready:45 | Bot logged in as Auth Handler#8663 (ID: 1413482384996696216)
+2025-10-08 19:48:47 | INFO     | discord_bot | on_ready:46 | Connected to 1 guild(s)
+2025-10-08 19:48:47 | INFO     | discord_bot | on_ready:50 |   - Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:48:47 | INFO     | discord_bot | on_ready:54 | Syncing commands globally...
+2025-10-08 19:48:47 | INFO     | discord_bot | on_ready:401 | Auth persistent views registered
+2025-10-08 19:48:47 | INFO     | discord_bot | on_ready:32 | Logout persistent views registered
+2025-10-08 19:48:48 | INFO     | discord_bot | on_ready:56 | ✓ Synced 9 global command(s)
+2025-10-08 19:48:48 | INFO     | discord_bot | on_ready:62 | ✓ Synced 0 command(s) to guild: Bot Testing
+2025-10-08 19:48:48 | INFO     | discord_bot | on_ready:78 | Bot is ready!
+2025-10-08 19:48:48 | INFO     | discord_bot | on_ready:79 | ==================================================
+2025-10-08 19:48:48 | INFO     | discord_bot | on_ready:80 | Use !sync command to manually sync slash commands
+2025-10-08 19:48:48 | INFO     | discord_bot | on_ready:81 | ==================================================
+2025-10-08 19:49:38 | INFO     | discord_bot | setup_auth:798 | Auth embed setup by mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139) with 5 roles
+2025-10-08 19:49:41 | INFO     | discord_bot | handle_signup:992 | Signup modal shown to mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:50:08 | ERROR    | discord_bot | on_submit:291 | Error in signup modal: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\ui\modals.py", line 247, in on_submit
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 19:50:08 | ERROR    | discord_bot | on_error:311 | Modal error: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\ui\modals.py", line 247, in on_submit
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\ui\modal.py", line 189, in _scheduled_task
+    await self.on_submit(interaction)
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\ui\modals.py", line 301, in on_submit
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 19:50:47 | INFO     | discord_bot | handle_signup:992 | Signup modal shown to mod.hunter (ID: 947795908119109652) in guild Bot Testing (ID: 1371483878371627139)
+2025-10-08 19:51:07 | INFO     | discord_bot | create_user:64 | User created successfully: j**n@gmail.com in guild 1371483878371627139
+2025-10-08 19:51:07 | INFO     | discord_bot | role_selected:147 | User mod.hunter (ID: 947795908119109652) signed up with designation Developer in guild 1371483878371627139 (no role assigned yet)

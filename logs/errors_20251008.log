@@ -1,0 +1,48 @@
+2025-10-08 18:53:06 | ERROR    | discord_bot | setup_hook:43 | ✗ Failed to load cogs.auth: Extension 'cogs.auth' raised an error: ModuleNotFoundError: No module named 'models.server_config'
+2025-10-08 18:53:06 | ERROR    | discord_bot | setup_hook:43 | ✗ Failed to load cogs.logout: Extension 'cogs.logout' raised an error: ModuleNotFoundError: No module named 'models.server_config'
+2025-10-08 18:56:40 | ERROR    | discord_bot | setup_hook:39 | ✗ Failed to load cogs.auth: Extension 'cogs.auth' raised an error: ModuleNotFoundError: No module named 'models.server_config'
+2025-10-08 18:56:40 | ERROR    | discord_bot | setup_hook:39 | ✗ Failed to load cogs.logout: Extension 'cogs.logout' raised an error: ModuleNotFoundError: No module named 'models.server_config'
+2025-10-08 18:59:42 | ERROR    | discord_bot | setup_hook:39 | ✗ Failed to load cogs.auth: Extension 'cogs.auth' raised an error: SyntaxError: invalid syntax. Perhaps you forgot a comma? (modals.py, line 37)
+2025-10-08 19:12:42 | ERROR    | discord_bot | set_login_channel:82 | Error in set_login_channel: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\auth.py", line 66, in set_login_channel
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 19:50:08 | ERROR    | discord_bot | on_submit:291 | Error in signup modal: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\ui\modals.py", line 247, in on_submit
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 19:50:08 | ERROR    | discord_bot | on_error:311 | Modal error: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\ui\modals.py", line 247, in on_submit
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\ui\modal.py", line 189, in _scheduled_task
+    await self.on_submit(interaction)
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\ui\modals.py", line 301, in on_submit
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
