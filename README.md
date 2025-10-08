@@ -6,29 +6,29 @@ A professional, scalable Discord bot that provides user authentication and role 
 
 ### Core Functionality
 
--   ✅ **User Registration (Signup)**: Users create accounts with email and password
--   🔑 **User Authentication (Login)**: Role assignment after credential verification
--   👋 **Logout System**: Role removal with confirmation prompt
--   🎭 **Role Management**: Admins configure which roles users can select during signup
--   🏢 **Multi-Server Support**: Works independently across unlimited Discord servers
--   🗄️ **Database Integration**: Persistent data storage using Supabase (PostgreSQL)
--   🔒 **Security**: Input validation, unique constraints, and secure password generation
+-   **User Registration (Signup)**: Users create accounts with email and password
+-   **User Authentication (Login)**: Role assignment after credential verification
+-   **Logout System**: Role removal with confirmation prompt
+-   **Role Management**: Admins configure which roles users can select during signup
+-   **Multi-Server Support**: Works independently across unlimited Discord servers
+-   **Database Integration**: Persistent data storage using Supabase (PostgreSQL)
+-   **Security**: Input validation, unique constraints, and secure password generation
 
 ### Admin Features
 
--   📝 **Dynamic Role Configuration**: Add/remove signup roles per server
--   ⚙️ **Channel Setup**: Configure login and logout channels via commands
--   📊 **Configuration View**: See current bot setup at a glance
--   🔄 **Manual Command Sync**: Force-sync slash commands when needed
--   📋 **Role List View**: Display all available signup roles
+-   **Dynamic Role Configuration**: Add/remove signup roles per server
+-   **Channel Setup**: Configure login and logout channels via commands
+-   **Configuration View**: See current bot setup at a glance
+-   **Manual Command Sync**: Force-sync slash commands when needed
+-   **Role List View**: Display all available signup roles
 
 ### User Experience
 
--   📱 **Interactive Modals**: Clean forms for data entry
--   🎯 **Dropdown Menus**: Select roles from configured options
--   ⚠️ **Confirmation Prompts**: Prevent accidental logout
--   💬 **Ephemeral Messages**: Private responses visible only to the user
--   ✨ **Rich Embeds**: Beautiful, informative messages
+-   **Interactive Modals**: Clean forms for data entry
+-   **Dropdown Menus**: Select roles from configured options
+-   **Confirmation Prompts**: Prevent accidental logout
+-   **Ephemeral Messages**: Private responses visible only to the user
+-   **Rich Embeds**: Beautiful, informative messages
 
 ---
 
@@ -146,8 +146,8 @@ discord-auth-bot/
 3. Go to **"Bot"** → Click **"Add Bot"**
 4. Under **"TOKEN"**, click **"Reset Token"** and copy it (save securely!)
 5. Enable these **Privileged Gateway Intents**:
-    - ✅ SERVER MEMBERS INTENT
-    - ✅ MESSAGE CONTENT INTENT
+    - ✅ Server Members Intent
+    - ✅ Message Content Intent
 6. Save changes
 
 ### 2. Generate Bot Invite Link
@@ -723,36 +723,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## ⭐ Star History
-
-If you find this project useful, please consider giving it a star! ⭐
-
----
-
-## 📸 Screenshots
-
-### Authentication Embed
-
-![Auth Embed](screenshots/auth_embed.png)
-
-### Signup Flow
-
-![Signup Modal](screenshots/signup_modal.png)
-
-### Role Selection
-
-![Role Select](screenshots/role_select.png)
-
-### Login Success
-
-![Login Success](screenshots/login_success.png)
-
-### Logout Confirmation
-
-![Logout Confirm](screenshots/logout_confirm.png)
-
----
-
 **Made with ❤️ by [Your Name]**
 
 **Discord Bot Version:** 2.0  
@@ -789,4 +759,4 @@ python main.py
 /setup_logout
 ```
 
-**That's it! Your bot is ready to use!** 🎉
+**That's it! Your bot is ready to use!**

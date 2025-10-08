@@ -46,3 +46,138 @@ Traceback (most recent call last):
     raise NotFound(response, data)
 discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
 
+2025-10-08 19:53:54 | ERROR    | discord_bot | setup_logout:139 | Error in setup_logout: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\logout.py", line 132, in setup_logout
+    await interaction.response.send_message(embed=embed, view=view)
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 19:54:22 | ERROR    | discord_bot | confirm_logout:154 | Error removing roles: 404 Not Found (error code: 10008): Unknown Message
+2025-10-08 19:54:22 | ERROR    | discord_bot | confirm_logout:164 | Error in logout confirmation: This interaction has already been responded to before
+2025-10-08 20:00:42 | ERROR    | discord_bot | setup_auth:803 | Error in setup_auth: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\auth.py", line 718, in setup_auth
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 20:01:18 | ERROR    | discord_bot | setup_auth:803 | Error in setup_auth: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\auth.py", line 745, in setup_auth
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 20:01:58 | ERROR    | discord_bot | clear_signup_roles:637 | Error in clear_signup_roles: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\auth.py", line 616, in clear_signup_roles
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 20:04:51 | ERROR    | discord_bot | setup_logout:139 | Error in setup_logout: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\logout.py", line 106, in setup_logout
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 20:05:38 | ERROR    | discord_bot | confirm_logout:154 | Error removing roles: 404 Not Found (error code: 10008): Unknown Message
+2025-10-08 20:05:38 | ERROR    | discord_bot | confirm_logout:164 | Error in logout confirmation: This interaction has already been responded to before
+2025-10-08 20:35:36 | ERROR    | discord_bot | view_config:917 | Error in view_config: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\auth.py", line 914, in view_config
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 20:37:16 | ERROR    | discord_bot | set_login_channel:689 | Error in set_login_channel: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\auth.py", line 671, in set_login_channel
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 20:37:33 | ERROR    | discord_bot | set_login_channel:689 | Error in set_login_channel: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\auth.py", line 671, in set_login_channel
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 20:38:41 | ERROR    | discord_bot | set_login_channel:689 | Error in set_login_channel: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\auth.py", line 671, in set_login_channel
+    await interaction.response.send_message(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 20:41:24 | ERROR    | discord_bot | handle_login:1051 | Error in handle_login: object InteractionResponse can't be used in 'await' expression
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\cogs\auth.py", line 1032, in handle_login
+    await interaction.response
+TypeError: object InteractionResponse can't be used in 'await' expression
+
+2025-10-08 20:41:50 | ERROR    | discord_bot | confirm_logout:154 | Error removing roles: 404 Not Found (error code: 10008): Unknown Message
+2025-10-08 20:41:50 | ERROR    | discord_bot | confirm_logout:164 | Error in logout confirmation: This interaction has already been responded to before
+2025-10-08 20:42:55 | ERROR    | discord_bot | on_submit:291 | Error in signup modal: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\ui\modals.py", line 286, in on_submit
+    embed=embed, view=view, ephemeral=True
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+2025-10-08 20:42:55 | ERROR    | discord_bot | on_error:311 | Modal error: 404 Not Found (error code: 10062): Unknown interaction
+Traceback (most recent call last):
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\ui\modals.py", line 286, in on_submit
+    embed=embed, view=view, ephemeral=True
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\ui\modal.py", line 189, in _scheduled_task
+    await self.on_submit(interaction)
+  File "D:\mn\mdev\mdevvx bots\auth-handler-bot\ui\modals.py", line 301, in on_submit
+    embed=create_error_embed(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "C:\Users\Muhammad Nadeem\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
