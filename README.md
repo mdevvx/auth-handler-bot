@@ -1,4 +1,4 @@
-# Discord Authentication Bot
+# 🤖 Auth Handler Bot
 
 A professional, scalable Discord bot that provides user authentication and role management across multiple servers. Users can sign up with their email, receive secure credentials, and log in to gain access to designated roles.
 
