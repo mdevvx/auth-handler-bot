@@ -4,7 +4,7 @@ Handles database operations for roles that users can select during signup
 """
 
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import traceback
 
 from config.database import get_supabase_client
@@ -45,7 +45,7 @@ class AllowedRolesModel:
                 "guild_id": guild_id,
                 "role_id": role_id,
                 "role_name": role_name,
-                "created_at": datetime.utcnow().isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat(),
             }
 
             response = supabase.table(self.table_name).insert(role_data).execute()

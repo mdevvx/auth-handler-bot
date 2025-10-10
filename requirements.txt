@@ -3,3 +3,4 @@ python-dotenv
 supabase
 supabase_auth
 supabase_functions
+asyncio

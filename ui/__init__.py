@@ -16,7 +16,7 @@ from .embeds import (
 
 from .views import AuthView, LogoutView, LogoutConfirmationView
 
-from .modals import SignupModal, LoginModal, RoleSelectView
+from .modals import LoginModal
 
 __all__ = [
     # Embeds
@@ -33,7 +33,5 @@ __all__ = [
     "LogoutView",
     "LogoutConfirmationView",
     # Modals
-    "SignupModal",
     "LoginModal",
-    "RoleSelectView",
 ]

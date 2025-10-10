@@ -5,7 +5,7 @@ Provides consistent logging across all modules
 
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 

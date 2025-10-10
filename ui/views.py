@@ -6,46 +6,22 @@ Handles button interactions for authentication and logout
 import discord
 from discord.ui import Button, View
 from typing import TYPE_CHECKING
+from datetime import datetime, timezone
 
 from utils.logger import logger
 from ui.embeds import create_success_embed, create_error_embed
+from models.server_config import ServerConfigModel
 
 if TYPE_CHECKING:
     from discord.ext import commands
 
 
 class AuthView(View):
-    """Persistent view for authentication buttons (Login/Signup)"""
+    """Persistent view for authentication buttons (Login only - signup removed)"""
 
     def __init__(self, bot: "commands.Bot"):
         super().__init__(timeout=None)  # Persistent view, no timeout
         self.bot = bot
-
-    @discord.ui.button(
-        label="Sign Up",
-        style=discord.ButtonStyle.green,
-        custom_id="auth_signup_button",
-        emoji="📝",
-    )
-    async def signup_button(self, interaction: discord.Interaction, button: Button):
-        """Handle signup button click"""
-        try:
-            # Get the AuthCog and call handle_signup
-            auth_cog = self.bot.get_cog("AuthCog")
-            if auth_cog:
-                await auth_cog.handle_signup(interaction)
-            else:
-                logger.error("AuthCog not found")
-                await interaction.response.send_message(
-                    "❌ Authentication system is not available. Please contact an administrator.",
-                    ephemeral=True,
-                )
-        except Exception as e:
-            logger.error(f"Error in signup button: {e}")
-            if not interaction.response.is_done():
-                await interaction.response.send_message(
-                    "❌ An error occurred. Please try again later.", ephemeral=True
-                )
 
     @discord.ui.button(
         label="Login",
@@ -77,10 +53,51 @@ class AuthView(View):
 class LogoutConfirmationView(View):
     """View for logout confirmation with Yes/No buttons"""
 
-    def __init__(self, roles_to_remove: list):
+    def __init__(self, roles_to_remove: list, bot: "commands.Bot"):
         super().__init__(timeout=60)  # 60 seconds to confirm
         self.roles_to_remove = roles_to_remove
+        self.bot = bot
         self.value = None
+
+    async def send_logout_log(
+        self, guild: discord.Guild, member: discord.Member, roles_removed: list
+    ):
+        """Send logout log to logging channel"""
+        try:
+            config_model = ServerConfigModel()
+            logging_channel_id = await config_model.get_logging_channel(guild.id)
+
+            if logging_channel_id:
+                channel = guild.get_channel(logging_channel_id)
+                if channel:
+                    # Create log embed
+                    log_embed = discord.Embed(
+                        title="🔒 User Logged Out",
+                        color=discord.Color.orange(),
+                        timestamp=datetime.now(timezone.utc),
+                    )
+
+                    log_embed.add_field(
+                        name="👤 User",
+                        value=f"{member.mention} (`{member.id}`)",
+                        inline=False,
+                    )
+                    log_embed.add_field(
+                        name="🗑️ Roles Removed",
+                        value="\n".join(
+                            [f"• {role.mention}" for role in roles_removed]
+                        ),
+                        inline=False,
+                    )
+                    log_embed.set_thumbnail(url=member.display_avatar.url)
+                    log_embed.set_footer(
+                        text=f"User: {member.name} • Guild: {guild.name}"
+                    )
+                    # log_embed.set_footer(text=f"User ID: {member.id}")
+
+                    await channel.send(embed=log_embed)
+        except Exception as e:
+            logger.error(f"Error sending logout log: {e}")
 
     @discord.ui.button(
         label="Yes, Logout", style=discord.ButtonStyle.danger, emoji="✅"
@@ -122,13 +139,16 @@ class LogoutConfirmationView(View):
 
                 embed.add_field(
                     name="🔑 Login Again",
-                    value="You can login again anytime in the login-signup channel to regain access.",
+                    value="You can login again anytime in the login channel to regain access.",
                     inline=False,
                 )
 
                 embed.set_footer(text="Your account data remains saved")
 
                 await interaction.response.send_message(embed=embed, ephemeral=True)
+
+                # Send logout log to Discord channel
+                await self.send_logout_log(guild, member, self.roles_to_remove)
 
                 logger.info(
                     f"User {member} (ID: {member.id}) logged out from guild {guild.name} (ID: {guild.id}). Removed roles: {role_names}"
@@ -271,7 +291,7 @@ class LogoutView(View):
             embed.set_footer(text="You have 60 seconds to confirm")
 
             # Create confirmation view
-            view = LogoutConfirmationView(roles_to_remove)
+            view = LogoutConfirmationView(roles_to_remove, interaction.client)
 
             # Send confirmation message
             await interaction.response.send_message(

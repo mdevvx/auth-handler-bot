@@ -4,7 +4,7 @@ Handles database operations for server-specific configurations
 """
 
 from typing import Optional, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import traceback
 
 from config.database import get_supabase_client
@@ -64,7 +64,7 @@ class ServerConfigModel:
             # Check if config exists
             existing = await self.get_config(guild_id)
 
-            config_data["updated_at"] = datetime.utcnow().isoformat()
+            config_data["updated_at"] = datetime.now(timezone.utc).isoformat()
 
             if existing:
                 # Update existing config
@@ -77,7 +77,7 @@ class ServerConfigModel:
             else:
                 # Create new config
                 config_data["guild_id"] = guild_id
-                config_data["created_at"] = datetime.utcnow().isoformat()
+                config_data["created_at"] = datetime.now(timezone.utc).isoformat()
                 response = supabase.table(self.table_name).insert(config_data).execute()
 
             if response.data:
@@ -119,6 +119,21 @@ class ServerConfigModel:
             guild_id, {"logout_channel_id": channel_id}
         )
 
+    async def set_logging_channel(self, guild_id: int, channel_id: int) -> bool:
+        """
+        Set the logging channel for a guild
+
+        Args:
+            guild_id: Discord guild ID
+            channel_id: Channel ID to set
+
+        Returns:
+            True if successful, False otherwise
+        """
+        return await self.create_or_update_config(
+            guild_id, {"logging_channel_id": channel_id}
+        )
+
     async def get_login_channel(self, guild_id: int) -> Optional[int]:
         """
         Get the login channel ID for a guild
@@ -144,6 +159,19 @@ class ServerConfigModel:
         """
         config = await self.get_config(guild_id)
         return config["logout_channel_id"] if config else None
+
+    async def get_logging_channel(self, guild_id: int) -> Optional[int]:
+        """
+        Get the logging channel ID for a guild
+
+        Args:
+            guild_id: Discord guild ID
+
+        Returns:
+            Channel ID if set, None otherwise
+        """
+        config = await self.get_config(guild_id)
+        return config.get("logging_channel_id") if config else None
 
     async def delete_config(self, guild_id: int) -> bool:
         """
