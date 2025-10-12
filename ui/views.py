@@ -4,6 +4,7 @@ Handles button interactions for authentication and logout
 """
 
 import discord
+import traceback
 from discord.ui import Button, View
 from typing import TYPE_CHECKING
 from datetime import datetime, timezone
@@ -308,3 +309,69 @@ class LogoutView(View):
                 await interaction.response.send_message(
                     "❌ An error occurred. Please try again later.", ephemeral=True
                 )
+
+
+# class LogoutView(discord.ui.View):
+#     """View containing the logout button for users"""
+
+#     def __init__(self):
+#         super().__init__(timeout=None)
+
+#     @discord.ui.button(
+#         label="Logout",
+#         style=discord.ButtonStyle.danger,
+#         custom_id="persistent_logout_button",
+#         emoji="🔒",
+#     )
+#     async def logout_button(
+#         self, interaction: discord.Interaction, button: discord.ui.Button
+#     ):
+#         """Handles logout button click"""
+#         try:
+#             guild = interaction.guild
+#             member = interaction.user
+
+#             if not guild or not member:
+#                 await interaction.response.send_message(
+#                     embed=create_error_embed("Error", "Guild or user not found."),
+#                     ephemeral=True,
+#                 )
+#                 return
+
+#             # ✅ Remove all roles except @everyone
+#             roles_to_remove = [r for r in member.roles if r.name != "@everyone"]
+
+#             if not roles_to_remove:
+#                 await interaction.response.send_message(
+#                     embed=create_error_embed(
+#                         "Error", "You don't have any roles to remove."
+#                     ),
+#                     ephemeral=True,
+#                 )
+#                 return
+
+#             await member.remove_roles(*roles_to_remove, reason="User logout")
+#             logger.info(f"Removed roles from {member} in guild {guild.name}")
+
+#             # ✅ Show success message
+#             success_embed = create_success_embed(
+#                 "Successfully Logged Out",
+#                 "All your assigned roles have been removed.\nYou can log in again anytime.",
+#             )
+#             await interaction.response.send_message(embed=success_embed, ephemeral=True)
+
+#             # ✅ Record logout in database (call LogoutCog helper)
+#             logout_cog = interaction.client.get_cog("LogoutCog")
+#             if logout_cog:
+#                 await logout_cog.record_logout(interaction)
+#             else:
+#                 logger.warning("LogoutCog not found while attempting to record logout.")
+
+#         except Exception as e:
+#             logger.error(f"Error in LogoutView: {e}\n{traceback.format_exc()}")
+#             await interaction.response.send_message(
+#                 embed=create_error_embed(
+#                     "Error", "Unexpected error occurred during logout."
+#                 ),
+#                 ephemeral=True,
+# )

@@ -1,24 +1,35 @@
-"""
-Admin User Management Cog
-Handles CRUD operations for users via slash commands
-"""
+# ✅ Complete Multi-Role Admin Management Cog
+# Includes: Create, Update, Read, Read All, Delete, Help
+# With Role Mentions, Discord Username Display, and Polished UX
 
 import discord
 from discord.ext import commands
 from discord import app_commands
-from typing import Optional
 import traceback
 
 from models.user import UserModel
 from models.allowed_roles import AllowedRolesModel
-from ui.embeds import create_success_embed, create_error_embed
+from ui.embeds import create_error_embed
 from utils.logger import logger
-from utils.helpers import mask_email, generate_password
+from utils.helpers import mask_email, validate_email, validate_full_name, sanitize_input
 
 
-class RoleSelectViewForCreate(discord.ui.View):
-    """View with role select menu for admin creating user"""
+# -------------------------------------------------------------
+# 🔹 Utility: Format roles with mentions
+# -------------------------------------------------------------
+def format_roles_display(guild: discord.Guild, roles: list) -> str:
+    """Return a formatted string of role mentions (or names if not found)."""
+    formatted = []
+    for role_name in roles:
+        role = discord.utils.get(guild.roles, name=role_name)
+        formatted.append(role.mention if role else f"`{role_name}`")
+    return ", ".join(formatted) if formatted else "❌ No roles assigned"
 
+
+# -------------------------------------------------------------
+# 🔹 Multi-Role Selection View
+# -------------------------------------------------------------
+class MultiRoleSelectView(discord.ui.View):
     def __init__(
         self,
         user_model: UserModel,
@@ -27,1050 +38,447 @@ class RoleSelectViewForCreate(discord.ui.View):
         email: str,
         available_roles: list,
         admin_user: discord.User,
+        existing_roles=None,
+        user_data=None,
     ):
-        super().__init__(timeout=180)  # 3 minutes timeout
+        super().__init__(timeout=180)
         self.user_model = user_model
         self.guild_id = guild_id
         self.full_name = full_name
         self.email = email
-        self.admin_user = admin_user
-
-        # Create select menu
-        options = [
-            discord.SelectOption(
-                label=role.name,
-                value=str(role.id),
-                description=f"Assign {role.name} role",
-                emoji="👤",
-            )
-            for role in available_roles[:25]  # Discord limit is 25 options
-        ]
-
-        select = discord.ui.Select(
-            placeholder="Choose user's role/designation...",
-            options=options,
-            custom_id="role_select_create",
-        )
-        select.callback = self.role_selected
-        self.add_item(select)
-
-    async def role_selected(self, interaction: discord.Interaction):
-        """Handle role selection"""
-        try:
-            role_id = int(interaction.data["values"][0])
-            guild = interaction.guild
-
-            # Get the selected role
-            role = guild.get_role(role_id)
-            if not role:
-                await interaction.response.send_message(
-                    embed=create_error_embed(
-                        "Role Not Found",
-                        "The selected role no longer exists. Please try again.",
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            # Defer response as database operation might take time
-            await interaction.response.defer(ephemeral=True)
-
-            # Create user in database WITHOUT Discord user ID (will be 0 as placeholder)
-            user_data = await self.user_model.create_user(
-                guild_id=self.guild_id,
-                discord_user_id=0,  # Placeholder - will be updated on first login
-                full_name=self.full_name,
-                email=self.email,
-                designation=role.name,
-            )
-
-            if not user_data:
-                await interaction.followup.send(
-                    embed=create_error_embed(
-                        "Creation Failed",
-                        "Failed to create user. This email may already be registered.",
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            # Success
-            embed = discord.Embed(
-                title="✅ User Created Successfully",
-                description=f"New user account has been registered in the system.",
-                color=discord.Color.green(),
-            )
-
-            embed.add_field(name="👤 Name", value=f"`{self.full_name}`", inline=False)
-            embed.add_field(name="📧 Email", value=f"`{self.email}`", inline=False)
-            embed.add_field(
-                name="👔 Role", value=f"{role.mention} - `{role.name}`", inline=False
-            )
-            embed.add_field(
-                name="🔑 Password",
-                value=f"```{user_data['generated_password']}```",
-                inline=False,
-            )
-            embed.add_field(
-                name="📝 Important",
-                value=(
-                    "**Share these credentials with the user securely:**\n"
-                    "• Send via DM or secure channel\n"
-                    "• User can login to receive their role\n"
-                    "• Password cannot be recovered if lost"
-                ),
-                inline=False,
-            )
-
-            embed.set_footer(text=f"Created by {self.admin_user}")
-
-            await interaction.followup.send(embed=embed, ephemeral=True)
-            logger.info(
-                f"Admin {self.admin_user} created user {mask_email(self.email)} with role {role.name} in guild {self.guild_id}"
-            )
-
-            # Disable the view
-            for item in self.children:
-                item.disabled = True
-
-        except Exception as e:
-            logger.error(f"Error in role selection: {e}\n{traceback.format_exc()}")
-            if interaction.response.is_done():
-                await interaction.followup.send(
-                    embed=create_error_embed(
-                        "Error", "An unexpected error occurred. Please try again."
-                    ),
-                    ephemeral=True,
-                )
-            else:
-                await interaction.response.send_message(
-                    embed=create_error_embed(
-                        "Error", "An unexpected error occurred. Please try again."
-                    ),
-                    ephemeral=True,
-                )
-
-    async def on_timeout(self):
-        """Handle timeout"""
-        for item in self.children:
-            item.disabled = True
-
-
-class CreateUserModal(discord.ui.Modal):
-    """Modal for creating a new user - simplified version"""
-
-    def __init__(self, user_model: UserModel, available_roles: list, guild_id: int):
-        super().__init__(title="Create New User", timeout=300)
-
-        self.user_model = user_model
         self.available_roles = available_roles
-        self.guild_id = guild_id
-
-        # Full Name input
-        self.full_name_input = discord.ui.TextInput(
-            label="Full Name",
-            placeholder="Enter user's full name",
-            min_length=2,
-            max_length=100,
-            required=True,
-            style=discord.TextStyle.short,
-        )
-        self.add_item(self.full_name_input)
-
-        # Email input
-        self.email_input = discord.ui.TextInput(
-            label="Email",
-            placeholder="user@example.com",
-            min_length=5,
-            max_length=255,
-            required=True,
-            style=discord.TextStyle.short,
-        )
-        self.add_item(self.email_input)
-
-    async def on_submit(self, interaction: discord.Interaction):
-        """Handle form submission"""
-        try:
-            from utils.helpers import validate_email, validate_full_name, sanitize_input
-
-            # Get and sanitize inputs
-            full_name = sanitize_input(self.full_name_input.value, 100)
-            email = sanitize_input(self.email_input.value.lower(), 255)
-
-            # Validate full name
-            if not validate_full_name(full_name):
-                await interaction.response.send_message(
-                    embed=create_error_embed(
-                        "Invalid Name",
-                        "Please enter a valid full name (letters, spaces, hyphens, and apostrophes only).",
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            # Validate email
-            if not validate_email(email):
-                await interaction.response.send_message(
-                    embed=create_error_embed(
-                        "Invalid Email", "Please enter a valid email address."
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            # Check if email already exists
-            existing_email = await self.user_model.get_user_by_email(
-                self.guild_id, email
-            )
-            if existing_email:
-                await interaction.response.send_message(
-                    embed=create_error_embed(
-                        "Email Already Exists",
-                        f"A user with email `{email}` already exists in this server.",
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            # Show role selection view
-            view = RoleSelectViewForCreate(
-                self.user_model,
-                self.guild_id,
-                full_name,
-                email,
-                self.available_roles,
-                interaction.user,
-            )
-
-            embed = discord.Embed(
-                title="📋 Select User's Role",
-                description=(
-                    f"**Name:** {full_name}\n"
-                    f"**Email:** {email}\n\n"
-                    "Please select the role/designation for this user:"
-                ),
-                color=discord.Color.blue(),
-            )
-
-            await interaction.response.send_message(
-                embed=embed, view=view, ephemeral=True
-            )
-
-        except Exception as e:
-            logger.error(f"Error in CreateUserModal: {e}\n{traceback.format_exc()}")
-            if interaction.response.is_done():
-                await interaction.followup.send(
-                    embed=create_error_embed("Error", "An error occurred."),
-                    ephemeral=True,
-                )
-            else:
-                await interaction.response.send_message(
-                    embed=create_error_embed("Error", "An error occurred."),
-                    ephemeral=True,
-                )
-
-
-# class UpdateUserModal(discord.ui.Modal):
-#     """Modal for updating user information"""
-
-#     def __init__(self, user_model: UserModel, user_data: dict, available_roles: list):
-#         super().__init__(title="Update User", timeout=300)
-
-#         self.user_model = user_model
-#         self.user_data = user_data
-#         self.available_roles = available_roles
-
-#         # Full Name input
-#         self.full_name_input = discord.ui.TextInput(
-#             label="Full Name",
-#             default=user_data["full_name"],
-#             min_length=2,
-#             max_length=100,
-#             required=True,
-#             style=discord.TextStyle.short,
-#         )
-#         self.add_item(self.full_name_input)
-
-#         # Email input
-#         self.email_input = discord.ui.TextInput(
-#             label="Email",
-#             default=user_data["email"],
-#             min_length=5,
-#             max_length=255,
-#             required=True,
-#             style=discord.TextStyle.short,
-#         )
-#         self.add_item(self.email_input)
-
-#         # Role input
-#         role_names = ", ".join([role.name for role in available_roles])
-#         self.designation_input = discord.ui.TextInput(
-#             label="Designation/Role",
-#             default=user_data["designation"],
-#             placeholder=f"Choose from: {role_names[:100]}",
-#             min_length=2,
-#             max_length=100,
-#             required=True,
-#             style=discord.TextStyle.short,
-#         )
-#         self.add_item(self.designation_input)
-
-#     async def on_submit(self, interaction: discord.Interaction):
-#         """Handle form submission"""
-#         try:
-#             from utils.helpers import validate_email, validate_full_name, sanitize_input
-
-#             # Get and sanitize inputs
-#             full_name = sanitize_input(self.full_name_input.value, 100)
-#             email = sanitize_input(self.email_input.value.lower(), 255)
-#             designation = sanitize_input(self.designation_input.value, 100)
-
-#             # Validate
-#             if not validate_full_name(full_name):
-#                 await interaction.response.send_message(
-#                     embed=create_error_embed(
-#                         "Invalid Name", "Please enter a valid full name."
-#                     ),
-#                     ephemeral=True,
-#                 )
-#                 return
-
-#             if not validate_email(email):
-#                 await interaction.response.send_message(
-#                     embed=create_error_embed(
-#                         "Invalid Email", "Please enter a valid email."
-#                     ),
-#                     ephemeral=True,
-#                 )
-#                 return
-
-#             # Find matching role
-#             matching_role = None
-#             for role in self.available_roles:
-#                 if role.name.lower() == designation.lower():
-#                     matching_role = role
-#                     break
-
-#             if not matching_role:
-#                 await interaction.response.send_message(
-#                     embed=create_error_embed(
-#                         "Invalid Role", f"Role `{designation}` not found."
-#                     ),
-#                     ephemeral=True,
-#                 )
-#                 return
-
-#             # Defer response
-#             await interaction.response.defer(ephemeral=True, thinking=True)
-
-#             # Update user
-#             update_data = {
-#                 "full_name": full_name,
-#                 "email": email,
-#                 "designation": matching_role.name,
-#             }
-
-#             success = await self.user_model.update_user(
-#                 self.user_data["id"], update_data
-#             )
-
-#             if success:
-#                 embed = discord.Embed(
-#                     title="✅ User Updated Successfully", color=discord.Color.green()
-#                 )
-#                 embed.add_field(name="👤 Name", value=f"`{full_name}`", inline=False)
-#                 embed.add_field(name="📧 Email", value=f"`{email}`", inline=False)
-#                 embed.add_field(
-#                     name="👔 Role", value=f"`{matching_role.name}`", inline=False
-#                 )
-
-#                 await interaction.followup.send(embed=embed, ephemeral=True)
-#                 logger.info(
-#                     f"Admin {interaction.user} updated user {self.user_data['id']}"
-#                 )
-#             else:
-#                 await interaction.followup.send(
-#                     embed=create_error_embed("Update Failed", "Failed to update user."),
-#                     ephemeral=True,
-#                 )
-
-#         except Exception as e:
-#             logger.error(f"Error in UpdateUserModal: {e}\n{traceback.format_exc()}")
-
-
-class RoleSelectViewForUpdate(discord.ui.View):
-    """View with role select menu for updating user role"""
-
-    def __init__(
-        self,
-        user_model: UserModel,
-        user_data: dict,
-        full_name: str,
-        email: str,
-        available_roles: list,
-        admin_user: discord.User,
-    ):
-        super().__init__(timeout=180)  # 3 minutes timeout
-        self.user_model = user_model
-        self.user_data = user_data
-        self.full_name = full_name
-        self.email = email
         self.admin_user = admin_user
+        self.user_data = user_data
 
-        # Create select menu
+        selected = existing_roles or []
+
         options = [
             discord.SelectOption(
                 label=role.name,
                 value=str(role.id),
-                description=f"Change to {role.name} role",
-                emoji="👤",
-                default=(
-                    role.name == user_data["designation"]
-                ),  # Pre-select current role
+                description=f"{role.name} role",
+                default=(role.name in selected),
             )
-            for role in available_roles[:25]  # Discord limit is 25 options
+            for role in available_roles[:25]
         ]
 
         select = discord.ui.Select(
-            placeholder="Choose new role/designation...",
+            placeholder="Choose one or more roles...",
+            min_values=1,
+            max_values=len(options),
             options=options,
-            custom_id="role_select_update",
+            custom_id="multi_role_select",
         )
-        select.callback = self.role_selected
+        select.callback = self.on_role_selected
         self.add_item(select)
 
-    async def role_selected(self, interaction: discord.Interaction):
-        """Handle role selection"""
+    async def on_role_selected(self, interaction: discord.Interaction):
         try:
-            role_id = int(interaction.data["values"][0])
+            role_ids = [int(r) for r in interaction.data.get("values", [])]
             guild = interaction.guild
+            roles = [guild.get_role(rid) for rid in role_ids if guild.get_role(rid)]
+            role_names = [r.name for r in roles]
 
-            # Get the selected role
-            role = guild.get_role(role_id)
-            if not role:
-                await interaction.response.send_message(
-                    embed=create_error_embed(
-                        "Role Not Found",
-                        "The selected role no longer exists. Please try again.",
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            # Defer response
             await interaction.response.defer(ephemeral=True)
 
-            # Update user
-            update_data = {
-                "full_name": self.full_name,
-                "email": self.email,
-                "designation": role.name,
-            }
+            if self.user_data is None:
+                # Create new user
+                user_data = await self.user_model.create_user(
+                    guild_id=self.guild_id,
+                    discord_user_id=0,
+                    full_name=self.full_name,
+                    email=self.email,
+                    designation=role_names,
+                )
 
-            success = await self.user_model.update_user(
-                self.user_data["id"], update_data
-            )
+                if not user_data:
+                    await interaction.followup.send(
+                        embed=create_error_embed(
+                            "Creation Failed",
+                            "Email already registered or database error.",
+                        ),
+                        ephemeral=True,
+                    )
+                    return
 
-            if success:
                 embed = discord.Embed(
-                    title="✅ User Updated Successfully", color=discord.Color.green()
+                    title="✅ User Created Successfully", color=discord.Color.green()
                 )
                 embed.add_field(
                     name="👤 Name", value=f"`{self.full_name}`", inline=False
                 )
                 embed.add_field(name="📧 Email", value=f"`{self.email}`", inline=False)
                 embed.add_field(
-                    name="👔 New Role",
-                    value=f"{role.mention} - `{role.name}`",
+                    name="👔 Roles",
+                    value=format_roles_display(guild, role_names),
                     inline=False,
                 )
-
-                if self.user_data["designation"] != role.name:
-                    embed.add_field(
-                        name="📝 Previous Role",
-                        value=f"`{self.user_data['designation']}`",
-                        inline=False,
-                    )
-
-                embed.set_footer(text=f"Updated by {self.admin_user}")
+                embed.add_field(
+                    name="🔑 Password",
+                    value=f"```{user_data['generated_password']}```",
+                    inline=False,
+                )
+                embed.set_footer(text=f"Created by {self.admin_user}")
 
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 logger.info(
-                    f"Admin {self.admin_user} updated user {self.user_data['id']}"
-                )
-            else:
-                await interaction.followup.send(
-                    embed=create_error_embed("Update Failed", "Failed to update user."),
-                    ephemeral=True,
+                    f"Admin {self.admin_user} created user {mask_email(self.email)} with roles {role_names} in guild {self.guild_id}"
                 )
 
-            # Disable the view
+            else:
+                # Update existing user
+                success = await self.user_model.update_user(
+                    self.user_data["id"],
+                    {
+                        "full_name": self.full_name,
+                        "email": self.email,
+                        "designation": role_names,
+                    },
+                )
+
+                if success:
+                    embed = discord.Embed(
+                        title="✅ User Updated Successfully",
+                        color=discord.Color.green(),
+                    )
+                    embed.add_field(
+                        name="👤 Name", value=f"`{self.full_name}`", inline=False
+                    )
+                    embed.add_field(
+                        name="📧 Email", value=f"`{self.email}`", inline=False
+                    )
+                    embed.add_field(
+                        name="👔 New Roles",
+                        value=format_roles_display(guild, role_names),
+                        inline=False,
+                    )
+                    embed.set_footer(text=f"Updated by {self.admin_user}")
+                    await interaction.followup.send(embed=embed, ephemeral=True)
+                    logger.info(
+                        f"Admin {self.admin_user} updated user {self.user_data['id']} roles {role_names}"
+                    )
+                else:
+                    await interaction.followup.send(
+                        embed=create_error_embed(
+                            "Update Failed", "Could not update user."
+                        ),
+                        ephemeral=True,
+                    )
+
             for item in self.children:
                 item.disabled = True
 
         except Exception as e:
-            logger.error(
-                f"Error in role selection for update: {e}\n{traceback.format_exc()}"
-            )
-            if interaction.response.is_done():
-                await interaction.followup.send(
-                    embed=create_error_embed("Error", "An unexpected error occurred."),
-                    ephemeral=True,
-                )
-            else:
-                await interaction.response.send_message(
-                    embed=create_error_embed("Error", "An unexpected error occurred."),
-                    ephemeral=True,
-                )
-
-    async def on_timeout(self):
-        """Handle timeout"""
-        for item in self.children:
-            item.disabled = True
-
-
-class UpdateUserModal(discord.ui.Modal):
-    """Modal for updating user information - now with dropdown for role"""
-
-    def __init__(self, user_model: UserModel, user_data: dict, available_roles: list):
-        super().__init__(title="Update User", timeout=300)
-
-        self.user_model = user_model
-        self.user_data = user_data
-        self.available_roles = available_roles
-
-        # Full Name input
-        self.full_name_input = discord.ui.TextInput(
-            label="Full Name",
-            default=user_data["full_name"],
-            min_length=2,
-            max_length=100,
-            required=True,
-            style=discord.TextStyle.short,
-        )
-        self.add_item(self.full_name_input)
-
-        # Email input
-        self.email_input = discord.ui.TextInput(
-            label="Email",
-            default=user_data["email"],
-            min_length=5,
-            max_length=255,
-            required=True,
-            style=discord.TextStyle.short,
-        )
-        self.add_item(self.email_input)
-
-    async def on_submit(self, interaction: discord.Interaction):
-        """Handle form submission"""
-        try:
-            from utils.helpers import validate_email, validate_full_name, sanitize_input
-
-            # Get and sanitize inputs
-            full_name = sanitize_input(self.full_name_input.value, 100)
-            email = sanitize_input(self.email_input.value.lower(), 255)
-
-            # Validate
-            if not validate_full_name(full_name):
-                await interaction.response.send_message(
-                    embed=create_error_embed(
-                        "Invalid Name", "Please enter a valid full name."
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            if not validate_email(email):
-                await interaction.response.send_message(
-                    embed=create_error_embed(
-                        "Invalid Email", "Please enter a valid email."
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            # Show role selection view
-            view = RoleSelectViewForUpdate(
-                self.user_model,
-                self.user_data,
-                full_name,
-                email,
-                self.available_roles,
-                interaction.user,
+            logger.error(f"Error selecting roles: {e}\n{traceback.format_exc()}")
+            await interaction.followup.send(
+                embed=create_error_embed("Error", "Unexpected error occurred."),
+                ephemeral=True,
             )
 
-            embed = discord.Embed(
-                title="📋 Select New Role",
-                description=(
-                    f"**Name:** {full_name}\n"
-                    f"**Email:** {email}\n"
-                    f"**Current Role:** `{self.user_data['designation']}`\n\n"
-                    "Please select the new role for this user:"
-                ),
-                color=discord.Color.blue(),
-            )
 
-            await interaction.response.send_message(
-                embed=embed, view=view, ephemeral=True
-            )
-
-        except Exception as e:
-            logger.error(f"Error in UpdateUserModal: {e}\n{traceback.format_exc()}")
-            if interaction.response.is_done():
-                await interaction.followup.send(
-                    embed=create_error_embed("Error", "An error occurred."),
-                    ephemeral=True,
-                )
-            else:
-                await interaction.response.send_message(
-                    embed=create_error_embed("Error", "An error occurred."),
-                    ephemeral=True,
-                )
-
-
+# -------------------------------------------------------------
+# 🔹 Delete User Confirmation View
+# -------------------------------------------------------------
 class DeleteUserConfirmationView(discord.ui.View):
-    """View for delete user confirmation"""
-
     def __init__(self, user_model: UserModel, user_data: dict, guild: discord.Guild):
-        super().__init__(timeout=60)  # 60 seconds to confirm
+        super().__init__(timeout=60)
         self.user_model = user_model
         self.user_data = user_data
         self.guild = guild
 
-    @discord.ui.button(
-        label="Yes, Delete User", style=discord.ButtonStyle.danger, emoji="✅"
-    )
-    async def confirm_delete(
+    @discord.ui.button(label="✅ Yes, Delete User", style=discord.ButtonStyle.danger)
+    async def confirm(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
-        """Handle delete confirmation"""
         try:
             await interaction.response.defer(ephemeral=True)
 
-            # Delete user
             success = await self.user_model.delete_user_by_email(
                 self.guild.id, self.user_data["email"]
             )
 
+            roles = self.user_data.get("designation", [])
+            if isinstance(roles, str):
+                roles = [roles]
+            roles_display = format_roles_display(self.guild, roles)
+
             if success:
                 embed = discord.Embed(
-                    title="✅ User Deleted",
-                    description=f"User **{self.user_data['full_name']}** has been permanently deleted.",
+                    title="✅ User Deleted Successfully",
+                    description=f"**{self.user_data['full_name']}** has been permanently deleted.",
                     color=discord.Color.green(),
                 )
                 embed.add_field(
                     name="📧 Email", value=f"`{self.user_data['email']}`", inline=False
                 )
-
+                embed.add_field(name="👔 Roles", value=roles_display, inline=False)
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 logger.info(
-                    f"Admin {interaction.user} deleted user {mask_email(self.user_data['email'])} from guild {self.guild.id}"
+                    f"Admin {interaction.user} deleted user {mask_email(self.user_data['email'])} ({roles}) from guild {self.guild.id}"
                 )
             else:
                 await interaction.followup.send(
                     embed=create_error_embed(
-                        "Deletion Failed", "Failed to delete user."
+                        "Deletion Failed", "Unable to delete user."
                     ),
                     ephemeral=True,
                 )
 
-            # Disable buttons
-            for item in self.children:
-                item.disabled = True
-            await interaction.message.edit(view=self)
-
         except Exception as e:
-            logger.error(f"Error in delete confirmation: {e}\n{traceback.format_exc()}")
+            logger.error(f"Error deleting user: {e}\n{traceback.format_exc()}")
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.secondary, emoji="❌")
-    async def cancel_delete(
-        self, interaction: discord.Interaction, button: discord.ui.Button
-    ):
-        """Handle delete cancellation"""
-        try:
-            embed = discord.Embed(
-                title="❌ Deletion Cancelled",
-                description="User was not deleted.",
-                color=discord.Color.blue(),
-            )
-
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-
-            # Disable buttons
-            for item in self.children:
-                item.disabled = True
-            await interaction.message.edit(view=self)
-
-        except Exception as e:
-            logger.error(f"Error in cancel delete: {e}\n{traceback.format_exc()}")
-
-    async def on_timeout(self):
-        """Handle timeout"""
-        for item in self.children:
-            item.disabled = True
+    @discord.ui.button(label="❌ Cancel", style=discord.ButtonStyle.secondary)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        embed = discord.Embed(
+            title="❌ Deletion Cancelled",
+            description="User was not deleted.",
+            color=discord.Color.blue(),
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
+# -------------------------------------------------------------
+# 🔹 Admin Users Cog
+# -------------------------------------------------------------
 class AdminUsersCog(commands.Cog):
-    """Cog for admin user management"""
-
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.user_model = UserModel()
         self.roles_model = AllowedRolesModel()
-        logger.info("AdminUsersCog initialized")
+        logger.info(
+            "AdminUsersCog initialized with complete multi-role and help support"
+        )
 
+    # ---------------------------------------------------------
+    # /CREATE_USER
+    # ---------------------------------------------------------
     @app_commands.command(
-        name="create_user", description="Create a new user account (Admin only)"
+        name="create_user", description="Create a new user with multiple roles"
     )
     @app_commands.default_permissions(administrator=True)
     async def create_user(self, interaction: discord.Interaction):
-        """Create a new user via modal"""
         try:
             guild = interaction.guild
-            if not guild:
-                await interaction.response.send_message(
-                    "❌ Must be used in a server!", ephemeral=True
-                )
-                return
-
-            # Get available roles
             roles_data = await self.roles_model.get_all_roles(guild.id)
-            if not roles_data:
-                await interaction.response.send_message(
-                    embed=create_error_embed(
-                        "No Roles Configured",
-                        "Please configure signup roles first using `/add_signup_role`.",
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            # Get role objects
-            available_roles = []
-            for role_data in roles_data:
-                role = guild.get_role(role_data["role_id"])
-                if role:
-                    available_roles.append(role)
+            available_roles = [
+                guild.get_role(r["role_id"])
+                for r in roles_data
+                if guild.get_role(r["role_id"])
+            ]
 
             if not available_roles:
                 await interaction.response.send_message(
                     embed=create_error_embed(
-                        "No Roles Available", "Configured roles no longer exist."
+                        "No Roles", "No available roles configured."
                     ),
                     ephemeral=True,
                 )
                 return
 
-            # Show modal
+            from ui.modals import CreateUserModal
+
             modal = CreateUserModal(self.user_model, available_roles, guild.id)
             await interaction.response.send_modal(modal)
 
         except Exception as e:
             logger.error(f"Error in create_user: {e}\n{traceback.format_exc()}")
 
+    # ---------------------------------------------------------
+    # /UPDATE_USER
+    # ---------------------------------------------------------
     @app_commands.command(
-        name="read_user", description="View user information (Admin only)"
+        name="update_user", description="Update a user's information and roles"
     )
     @app_commands.default_permissions(administrator=True)
     @app_commands.describe(email="User's email address")
-    async def read_user(self, interaction: discord.Interaction, email: str):
-        """Read a specific user's information"""
-        try:
-            guild = interaction.guild
-            if not guild:
-                await interaction.response.send_message(
-                    "❌ Must be used in a server!", ephemeral=True
-                )
-                return
-
-            await interaction.response.defer(ephemeral=True, thinking=True)
-
-            # Get user
-            user_data = await self.user_model.get_user_by_email(guild.id, email)
-
-            if not user_data:
-                await interaction.followup.send(
-                    embed=create_error_embed(
-                        "User Not Found", f"No user found with email `{email}`."
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            # Create embed
-            embed = discord.Embed(
-                title="👤 User Information", color=discord.Color.blue()
-            )
-
-            embed.add_field(
-                name="Full Name", value=f"`{user_data['full_name']}`", inline=False
-            )
-            embed.add_field(name="Email", value=f"`{user_data['email']}`", inline=False)
-            embed.add_field(
-                name="Discord ID",
-                value=f"`{user_data['discord_user_id']}`",
-                inline=False,
-            )
-            embed.add_field(
-                name="Designation", value=f"`{user_data['designation']}`", inline=False
-            )
-            embed.add_field(
-                name="Password", value=f"```{user_data['password']}```", inline=False
-            )
-
-            # Format dates
-            from datetime import datetime, timezone
-
-            created = datetime.fromisoformat(
-                user_data["created_at"].replace("Z", "+00:00")
-            )
-            embed.add_field(
-                name="Created", value=f"<t:{int(created.timestamp())}:F>", inline=True
-            )
-
-            if user_data.get("last_login"):
-                last_login = datetime.fromisoformat(
-                    user_data["last_login"].replace("Z", "+00:00")
-                )
-                embed.add_field(
-                    name="Last Login",
-                    value=f"<t:{int(last_login.timestamp())}:R>",
-                    inline=True,
-                )
-
-            # embed.set_footer(text=f"User ID: {user_data['id']}")
-
-            # Get Discord member if they've logged in
-            if user_data["discord_user_id"] != 0:
-                member = guild.get_member(user_data["discord_user_id"])
-                if member:
-                    embed.set_footer(
-                        text=f"Discord User: {member.name} • Guild: {guild.name}"
-                    )
-                else:
-                    embed.set_footer(text=f"Guild: {guild.name}")
-            else:
-                embed.set_footer(text=f"Guild: {guild.name}")
-
-            await interaction.followup.send(embed=embed, ephemeral=True)
-
-        except Exception as e:
-            logger.error(f"Error in read_user: {e}\n{traceback.format_exc()}")
-
-    @app_commands.command(
-        name="read_all_users", description="List all registered users (Admin only)"
-    )
-    @app_commands.default_permissions(administrator=True)
-    async def read_all_users(self, interaction: discord.Interaction):
-        """List all users in the server"""
-        try:
-            guild = interaction.guild
-            if not guild:
-                await interaction.response.send_message(
-                    "❌ Must be used in a server!", ephemeral=True
-                )
-                return
-
-            await interaction.response.defer(ephemeral=True, thinking=True)
-
-            # Get all users
-            users = await self.user_model.get_all_users_in_guild(guild.id)
-
-            if not users:
-                await interaction.followup.send(
-                    embed=create_error_embed(
-                        "No Users", "No users registered in this server yet."
-                    ),
-                    ephemeral=True,
-                )
-                return
-
-            # Create embed
-            embed = discord.Embed(
-                title="📋 Registered Users",
-                description=f"Total: **{len(users)}** user(s)",
-                color=discord.Color.blue(),
-            )
-
-            # Add users (limit to 25 fields)
-            for i, user in enumerate(users[:25]):
-                embed.add_field(
-                    name=f"{i+1}. {user['full_name']}",
-                    value=f"📧 `{user['email']}`\n👔 {user['designation']}",
-                    inline=True,
-                )
-
-            if len(users) > 25:
-                embed.set_footer(
-                    text=f"Showing first 25 of {len(users)} users • Guild: {guild.name}"
-                )
-            else:
-                embed.set_footer(text=f"Guild: {guild.name}")
-
-            await interaction.followup.send(embed=embed, ephemeral=True)
-
-        except Exception as e:
-            logger.error(f"Error in read_all_users: {e}\n{traceback.format_exc()}")
-
-    @app_commands.command(
-        name="update_user", description="Update user information (Admin only)"
-    )
-    @app_commands.default_permissions(administrator=True)
-    @app_commands.describe(email="User's current email address")
     async def update_user(self, interaction: discord.Interaction, email: str):
-        """Update a user's information"""
         try:
             guild = interaction.guild
-            if not guild:
-                await interaction.response.send_message(
-                    "❌ Must be used in a server!", ephemeral=True
-                )
-                return
-
-            # Get user
             user_data = await self.user_model.get_user_by_email(guild.id, email)
-
             if not user_data:
                 await interaction.response.send_message(
                     embed=create_error_embed(
-                        "User Not Found", f"No user found with email `{email}`."
+                        "User Not Found", f"No user found with `{email}`."
                     ),
                     ephemeral=True,
                 )
                 return
 
-            # Get available roles
             roles_data = await self.roles_model.get_all_roles(guild.id)
-            available_roles = []
-            for role_data in roles_data:
-                role = guild.get_role(role_data["role_id"])
-                if role:
-                    available_roles.append(role)
+            available_roles = [
+                guild.get_role(r["role_id"])
+                for r in roles_data
+                if guild.get_role(r["role_id"])
+            ]
 
             if not available_roles:
                 await interaction.response.send_message(
                     embed=create_error_embed(
-                        "No Roles Available", "Please configure signup roles first."
+                        "No Roles", "No available roles configured."
                     ),
                     ephemeral=True,
                 )
                 return
 
-            # Show update modal
+            from ui.modals import UpdateUserModal
+
             modal = UpdateUserModal(self.user_model, user_data, available_roles)
             await interaction.response.send_modal(modal)
 
         except Exception as e:
             logger.error(f"Error in update_user: {e}\n{traceback.format_exc()}")
 
-    # @app_commands.command(
-    #     name="delete_user", description="Delete a user account (Admin only)"
-    # )
-    # @app_commands.default_permissions(administrator=True)
-    # @app_commands.describe(email="User's email address")
-    # async def delete_user(self, interaction: discord.Interaction, email: str):
-    #     """Delete a user from the database"""
-    #     try:
-    #         guild = interaction.guild
-    #         if not guild:
-    #             await interaction.response.send_message(
-    #                 "❌ Must be used in a server!", ephemeral=True
-    #             )
-    #             return
+    # ---------------------------------------------------------
+    # /READ_USER
+    # ---------------------------------------------------------
+    @app_commands.command(name="read_user", description="View user info (Admin only)")
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.describe(email="User's email address")
+    async def read_user(self, interaction: discord.Interaction, email: str):
+        try:
+            guild = interaction.guild
+            user_data = await self.user_model.get_user_by_email(guild.id, email)
 
-    #         await interaction.response.defer(ephemeral=True, thinking=True)
+            if not user_data:
+                await interaction.response.send_message(
+                    embed=create_error_embed(
+                        "User Not Found", f"No user found with `{email}`."
+                    ),
+                    ephemeral=True,
+                )
+                return
 
-    #         # Check if user exists
-    #         user_data = await self.user_model.get_user_by_email(guild.id, email)
+            roles = user_data.get("designation", [])
+            if isinstance(roles, str):
+                roles = [roles]
+            roles_display = format_roles_display(guild, roles)
 
-    #         if not user_data:
-    #             await interaction.followup.send(
-    #                 embed=create_error_embed(
-    #                     "User Not Found", f"No user found with email `{email}`."
-    #                 ),
-    #                 ephemeral=True,
-    #             )
-    #             return
+            discord_id = user_data.get("discord_user_id")
+            if discord_id and int(discord_id) != 0:
+                member = guild.get_member(int(discord_id))
+                if member:
+                    discord_display = f"{member.name} ({member.mention})"
+                else:
+                    discord_display = f"Linked but not in server (`{discord_id}`)"
+            else:
+                discord_display = "❌ Not yet linked (user hasn't logged in)"
 
-    #         # Delete user
-    #         success = await self.user_model.delete_user_by_email(guild.id, email)
+            embed = discord.Embed(
+                title="👤 User Information", color=discord.Color.blue()
+            )
+            embed.add_field(
+                name="Full Name", value=f"`{user_data['full_name']}`", inline=False
+            )
+            embed.add_field(name="Email", value=f"`{user_data['email']}`", inline=False)
+            embed.add_field(
+                name="Password", value=f"```{user_data['password']}```", inline=False
+            )
+            embed.add_field(name="Roles", value=roles_display, inline=False)
+            embed.add_field(name="Discord Account", value=discord_display, inline=False)
 
-    #         if success:
-    #             embed = discord.Embed(
-    #                 title="✅ User Deleted",
-    #                 description=f"User **{user_data['full_name']}** (`{email}`) has been deleted.",
-    #                 color=discord.Color.green(),
-    #             )
-    #             await interaction.followup.send(embed=embed, ephemeral=True)
-    #             logger.info(
-    #                 f"Admin {interaction.user} deleted user {mask_email(email)} from guild {guild.id}"
-    #             )
-    #         else:
-    #             await interaction.followup.send(
-    #                 embed=create_error_embed(
-    #                     "Deletion Failed", "Failed to delete user."
-    #                 ),
-    #                 ephemeral=True,
-    #             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    #     except Exception as e:
-    #         logger.error(f"Error in delete_user: {e}\n{traceback.format_exc()}")
+        except Exception as e:
+            logger.error(f"Error in read_user: {e}\n{traceback.format_exc()}")
 
+    # ---------------------------------------------------------
+    # /READ_ALL_USERS
+    # ---------------------------------------------------------
+    @app_commands.command(
+        name="read_all_users", description="List all registered users (Admin only)"
+    )
+    @app_commands.default_permissions(administrator=True)
+    async def read_all_users(self, interaction: discord.Interaction):
+        try:
+            guild = interaction.guild
+            users = await self.user_model.get_all_users_in_guild(guild.id)
+            if not users:
+                await interaction.response.send_message(
+                    embed=create_error_embed(
+                        "No Users", "No users registered in this server."
+                    ),
+                    ephemeral=True,
+                )
+                return
+
+            embed = discord.Embed(
+                title="📋 Registered Users",
+                description=f"Total: **{len(users)}**",
+                color=discord.Color.blue(),
+            )
+
+            for i, user in enumerate(users[:25]):
+                roles = user.get("designation", [])
+                if isinstance(roles, str):
+                    roles = [roles]
+                roles_display = format_roles_display(guild, roles)
+
+                discord_id = user.get("discord_user_id")
+                if discord_id and int(discord_id) != 0:
+                    member = guild.get_member(int(discord_id))
+                    if member:
+                        discord_display = f"{member.name} ({member.mention})"
+                    else:
+                        discord_display = "(Linked but not in server)"
+                else:
+                    discord_display = "❌ Not linked yet"
+
+                embed.add_field(
+                    name=f"{i+1}. {user['full_name']}",
+                    value=(
+                        f"📧 `{user['email']}`\n"
+                        f"👔 {roles_display}\n"
+                        f"💬 Discord: {discord_display}"
+                    ),
+                    inline=True,
+                )
+
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        except Exception as e:
+            logger.error(f"Error in read_all_users: {e}\n{traceback.format_exc()}")
+
+    # ---------------------------------------------------------
+    # /DELETE_USER
+    # ---------------------------------------------------------
     @app_commands.command(
         name="delete_user", description="Delete a user account (Admin only)"
     )
     @app_commands.default_permissions(administrator=True)
     @app_commands.describe(email="User's email address")
     async def delete_user(self, interaction: discord.Interaction, email: str):
-        """Delete a user from the database with confirmation"""
         try:
             guild = interaction.guild
-            if not guild:
-                await interaction.response.send_message(
-                    "❌ Must be used in a server!", ephemeral=True
-                )
-                return
-
-            # Check if user exists
             user_data = await self.user_model.get_user_by_email(guild.id, email)
-
             if not user_data:
                 await interaction.response.send_message(
                     embed=create_error_embed(
-                        "User Not Found", f"No user found with email `{email}`."
+                        "User Not Found", f"No user found with `{email}`."
                     ),
                     ephemeral=True,
                 )
                 return
 
-            # Create confirmation view
-            view = DeleteUserConfirmationView(self.user_model, user_data, guild)
+            roles = user_data.get("designation", [])
+            if isinstance(roles, str):
+                roles = [roles]
+            roles_display = format_roles_display(guild, roles)
 
-            # Create confirmation embed
             embed = discord.Embed(
                 title="⚠️ Confirm User Deletion",
-                description="Are you sure you want to delete this user? This action cannot be undone!",
+                description="Are you sure you want to delete this user? This action **cannot be undone.**",
                 color=discord.Color.red(),
             )
-
             embed.add_field(
                 name="👤 Name", value=f"`{user_data['full_name']}`", inline=False
             )
             embed.add_field(
                 name="📧 Email", value=f"`{user_data['email']}`", inline=False
             )
-            embed.add_field(
-                name="👔 Role", value=f"`{user_data['designation']}`", inline=False
-            )
+            embed.add_field(name="👔 Roles", value=roles_display, inline=False)
+            embed.set_footer(text="You have 60 seconds to confirm.")
 
-            embed.add_field(
-                name="⚠️ Warning",
-                value="• All user data will be permanently deleted\n• User will lose access immediately\n• This action cannot be undone",
-                inline=False,
-            )
-
-            embed.set_footer(text="You have 60 seconds to confirm")
-
+            view = DeleteUserConfirmationView(self.user_model, user_data, guild)
             await interaction.response.send_message(
                 embed=embed, view=view, ephemeral=True
             )
@@ -1078,7 +486,81 @@ class AdminUsersCog(commands.Cog):
         except Exception as e:
             logger.error(f"Error in delete_user: {e}\n{traceback.format_exc()}")
 
+    # ---------------------------------------------------------
+    # /HELP
+    # ---------------------------------------------------------
+    @app_commands.command(name="help", description="Show all available bot commands")
+    # @app_commands.default_permissions(administrator=True)
+    async def help(self, interaction: discord.Interaction):
+        """Display the help menu for all bot commands"""
+        try:
+            embed = discord.Embed(
+                title="🤖 Auth Handler Bot — Help Menu",
+                description="A quick overview of available commands and features.",
+                color=discord.Color.blurple(),
+            )
 
+            embed.add_field(
+                name="🔑 User Commands",
+                value=(
+                    "• `/login` — Log into your account.\n"
+                    "• `/logout` — Logout and remove all assigned roles."
+                ),
+                inline=False,
+            )
+
+            embed.add_field(
+                name="🛠️ Admin User Management",
+                value=(
+                    "• `/create_user` — Create a new user with one or more roles.\n"
+                    "• `/update_user` — Edit user details or roles.\n"
+                    "• `/read_user` — View a specific user's info.\n"
+                    "• `/read_all_users` — List all registered users.\n"
+                    "• `/delete_user` — Delete a user safely with confirmation."
+                ),
+                inline=False,
+            )
+
+            embed.add_field(
+                name="⚙️ Configuration & Setup",
+                value=(
+                    "• `/set_login_channel` — Set the login channel.\n"
+                    "• `/set_logout_channel` — Set the logout channel.\n"
+                    "• `/setup_auth` — Post the login/authentication portal.\n"
+                    "• `/setup_logout` — Post the logout interface.\n"
+                    "• `/view_config` — View current bot configuration."
+                ),
+                inline=False,
+            )
+
+            embed.add_field(
+                name="💡 Tips",
+                value=(
+                    "• First-time users must be created by an admin.\n"
+                    "• Users can have **multiple roles**.\n"
+                    "• Logout removes roles but keeps user data safe.\n"
+                    "• Only administrators can manage user accounts."
+                ),
+                inline=False,
+            )
+
+            embed.set_footer(
+                text="Auth Handler Bot v2.0 • Secure Role-Based Authentication"
+            )
+
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+
+        except Exception as e:
+            logger.error(f"Error in /help command: {e}\n{traceback.format_exc()}")
+            await interaction.response.send_message(
+                embed=create_error_embed("Error", "Unable to display help menu."),
+                ephemeral=True,
+            )
+
+
+# -------------------------------------------------------------
+# 🔹 COG SETUP
+# -------------------------------------------------------------
 async def setup(bot: commands.Bot):
     """Required setup function for loading the cog"""
     await bot.add_cog(AdminUsersCog(bot))

@@ -1,53 +1,39 @@
 """
-Modal forms for user input
-Handles signup and login form submissions
+UI Modals for Auth Handler Bot
+Includes:
+ - LoginModal: For user login
+ - CreateUserModal: For admin creating users
+ - UpdateUserModal: For admin updating users
 """
 
 import discord
-from discord.ui import Modal, TextInput, Select, View
-from discord import SelectOption
-from typing import List, TYPE_CHECKING
 import traceback
 from datetime import datetime, timezone
 
 from models.user import UserModel
-from ui.embeds import (
-    create_signup_success_embed,
-    create_login_success_embed,
-    create_error_embed,
-)
+from ui.embeds import create_error_embed
 from utils.logger import logger
 from utils.helpers import validate_email, validate_full_name, sanitize_input
 
-if TYPE_CHECKING:
-    from cogs.auth import AuthCog
 
-
-class LoginModal(Modal):
-    """Modal form for user login"""
-
-    def __init__(
-        self, user_model: UserModel, guild: discord.Guild, auth_cog: "AuthCog"
-    ):
+# -------------------------------------------------------------
+# 🔹 LOGIN MODAL (for users)
+# -------------------------------------------------------------
+class LoginModal(discord.ui.Modal):
+    def __init__(self, user_model: UserModel, guild: discord.Guild, auth_cog):
         super().__init__(title="Login", timeout=300)
-
         self.user_model = user_model
         self.guild = guild
         self.auth_cog = auth_cog
 
-        # Email input
-        self.email_input = TextInput(
+        self.email_input = discord.ui.TextInput(
             label="Email",
             placeholder="your.email@example.com",
             min_length=5,
             max_length=255,
             required=True,
-            style=discord.TextStyle.short,
         )
-        self.add_item(self.email_input)
-
-        # Password input
-        self.password_input = TextInput(
+        self.password_input = discord.ui.TextInput(
             label="Password",
             placeholder="Enter your password",
             min_length=1,
@@ -55,16 +41,15 @@ class LoginModal(Modal):
             required=True,
             style=discord.TextStyle.short,
         )
+
+        self.add_item(self.email_input)
         self.add_item(self.password_input)
 
     async def on_submit(self, interaction: discord.Interaction):
-        """Handle login form submission"""
         try:
-            # Get and sanitize inputs
             email = sanitize_input(self.email_input.value.lower(), 255)
             password = self.password_input.value
 
-            # Validate email format
             if not validate_email(email):
                 await interaction.response.send_message(
                     embed=create_error_embed(
@@ -74,10 +59,8 @@ class LoginModal(Modal):
                 )
                 return
 
-            # Defer response as database operation might take time
             await interaction.response.defer(ephemeral=True, thinking=True)
 
-            # Authenticate user
             user_data = await self.user_model.authenticate_user(
                 guild_id=self.guild.id, email=email, password=password
             )
@@ -86,180 +69,257 @@ class LoginModal(Modal):
                 await interaction.followup.send(
                     embed=create_error_embed(
                         "Login Failed",
-                        "Invalid email or password. Please check your credentials and try again.\n\n"
-                        "If you don't have an account, contact an administrator.",
+                        "Invalid email or password. Please check your credentials.\nIf you don't have an account, contact an administrator.",
                     ),
                     ephemeral=True,
                 )
                 return
 
-            # Find the role in the guild
-            designation = user_data["designation"]
-            role = discord.utils.get(self.guild.roles, name=designation)
-
-            if not role:
+            member = self.guild.get_member(interaction.user.id)
+            if not member:
                 await interaction.followup.send(
                     embed=create_error_embed(
-                        "Role Not Found",
-                        f"The role `{designation}` no longer exists in this server. Please contact an administrator.",
+                        "Error", "Could not find your member information."
                     ),
                     ephemeral=True,
-                )
-                logger.warning(
-                    f"Role {designation} not found in guild {self.guild.id} for user {email}"
                 )
                 return
 
-            # NOW Assign role to user (only on login)
-            try:
-                member = self.guild.get_member(interaction.user.id)
-                if not member:
-                    await interaction.followup.send(
-                        embed=create_error_embed(
-                            "Error",
-                            "Could not find your member information. Please try again.",
-                        ),
-                        ephemeral=True,
-                    )
-                    return
-
-                # Check if user already has this role
-                if role in member.roles:
-                    await interaction.followup.send(
-                        embed=create_error_embed(
-                            "Already Logged In",
-                            f"You already have the **{role.name}** role assigned!\n\n"
-                            f"If you want to logout, go to the logout channel.",
-                        ),
-                        ephemeral=True,
-                    )
-                    return
-
-                # Assign the role
-                await member.add_roles(role, reason="User login")
-
-                # UPDATE: Set Discord user ID if it's 0 (placeholder from admin creation)
-                if user_data["discord_user_id"] == 0:
-                    await self.user_model.update_user(
-                        user_data["id"], {"discord_user_id": member.id}
-                    )
-                    logger.info(f"Updated Discord user ID for {email} to {member.id}")
-
-                # Send success message to user
-                embed = discord.Embed(
-                    title="✅ Login Successful!",
-                    description=f"Welcome back, **{user_data['full_name']}**!",
-                    color=discord.Color.green(),
+            # 🔒 Bind Discord account on first login
+            if user_data["discord_user_id"] == 0:
+                await self.user_model.update_user(
+                    user_data["id"], {"discord_user_id": member.id}
                 )
+                user_data["discord_user_id"] = member.id
+                logger.info(f"Bound Discord ID {member.id} to user {email}")
 
-                embed.add_field(
-                    name="👔 Your Role",
-                    value=f"{role.mention} - `{designation}`",
-                    inline=False,
-                )
-
-                embed.add_field(
-                    name="🎉 Access Granted",
-                    value="Your role has been assigned successfully! You now have access to the server channels.",
-                    inline=False,
-                )
-
-                embed.set_footer(text="Enjoy your stay!")
-
-                await interaction.followup.send(embed=embed, ephemeral=True)
-
-                # Log to Discord channel
-                log_embed = discord.Embed(
-                    title="🔓 User Logged In",
-                    color=discord.Color.green(),
-                    timestamp=datetime.now(timezone.utc),
-                )
-
-                log_embed.add_field(
-                    name="👤 User",
-                    value=f"{member.mention} (`{member.id}`)",
-                    inline=False,
-                )
-                log_embed.add_field(name="📧 Email", value=f"`{email}`", inline=True)
-                log_embed.add_field(
-                    name="👔 Role Assigned", value=role.mention, inline=True
-                )
-                log_embed.set_thumbnail(url=member.display_avatar.url)
-                log_embed.set_footer(
-                    text=f"User: {member.name} • Guild: {self.guild.name}"
-                )
-                # log_embed.set_footer(text=f"User ID: {member.id}")
-
-                await self.auth_cog.send_log_message(self.guild, log_embed)
-
-                logger.info(
-                    f"User {interaction.user} (ID: {interaction.user.id}) logged in and received role {role.name} in guild {self.guild.id}"
-                )
-
-            except discord.Forbidden:
-                logger.error(
-                    f"Missing permissions to assign role {role.name} to {interaction.user}"
-                )
+            elif user_data["discord_user_id"] != member.id:
                 await interaction.followup.send(
                     embed=create_error_embed(
-                        "Permission Error",
-                        "Login successful, but I couldn't assign your role. Please contact an administrator.\n\n"
-                        "The bot may be missing the **Manage Roles** permission.",
+                        "Access Denied",
+                        "This account is already linked to another Discord user.\nIf this is a mistake, contact an admin.",
                     ),
                     ephemeral=True,
                 )
-            except Exception as role_error:
-                logger.error(
-                    f"Error assigning role during login: {role_error}\n{traceback.format_exc()}"
-                )
+                return
+
+            # 🧩 Assign all roles
+            roles_assigned = []
+            designations = user_data.get("designation", [])
+            if isinstance(designations, str):
+                designations = [designations]
+
+            for role_name in designations:
+                role = discord.utils.get(self.guild.roles, name=role_name)
+                if role:
+                    await member.add_roles(role, reason="User login")
+                    roles_assigned.append(role)
+
+            if not roles_assigned:
                 await interaction.followup.send(
                     embed=create_error_embed(
-                        "Role Assignment Failed",
-                        "Login successful, but there was an error assigning your role. Please contact an administrator.",
+                        "No Roles Found",
+                        "Login successful but no valid roles found for this account.",
                     ),
                     ephemeral=True,
                 )
+                return
+
+            role_mentions = ", ".join([r.mention for r in roles_assigned])
+            embed = discord.Embed(
+                title="✅ Login Successful!",
+                description=f"Welcome back, **{user_data['full_name']}**!",
+                color=discord.Color.green(),
+            )
+            embed.add_field(name="👔 Your Roles", value=role_mentions, inline=False)
+            embed.add_field(
+                name="🎉 Access Granted",
+                value="Your roles have been assigned successfully!",
+                inline=False,
+            )
+            embed.set_footer(text="Enjoy your stay!")
+
+            await interaction.followup.send(embed=embed, ephemeral=True)
+
+            # Log the login
+            log_embed = discord.Embed(
+                title="🔓 User Logged In",
+                color=discord.Color.green(),
+                timestamp=datetime.now(timezone.utc),
+            )
+            log_embed.add_field(
+                name="👤 User", value=f"{member.mention} ({member.id})", inline=False
+            )
+            log_embed.add_field(name="📧 Email", value=f"`{email}`", inline=True)
+            log_embed.add_field(name="👔 Roles", value=role_mentions, inline=True)
+            log_embed.set_thumbnail(url=member.display_avatar.url)
+            log_embed.set_footer(text=f"User: {member.name} • Guild: {self.guild.name}")
+
+            await self.auth_cog.send_log_message(self.guild, log_embed)
 
         except Exception as e:
-            logger.error(f"Error in login modal: {e}\n{traceback.format_exc()}")
-            if interaction.response.is_done():
-                await interaction.followup.send(
-                    embed=create_error_embed(
-                        "Error",
-                        "An unexpected error occurred during login. Please try again later.",
-                    ),
-                    ephemeral=True,
-                )
-            else:
-                await interaction.response.send_message(
-                    embed=create_error_embed(
-                        "Error",
-                        "An unexpected error occurred during login. Please try again later.",
-                    ),
-                    ephemeral=True,
-                )
+            logger.error(f"Error in LoginModal: {e}\n{traceback.format_exc()}")
+            await interaction.followup.send(
+                embed=create_error_embed("Error", "Unexpected error during login."),
+                ephemeral=True,
+            )
 
-    async def on_error(self, interaction: discord.Interaction, error: Exception):
-        """Handle modal errors"""
-        logger.error(f"Modal error: {error}\n{traceback.format_exc()}")
+
+# -------------------------------------------------------------
+# 🔹 CREATE USER MODAL (for admins)
+# -------------------------------------------------------------
+class CreateUserModal(discord.ui.Modal):
+    def __init__(self, user_model, available_roles, guild_id: int):
+        super().__init__(title="Create New User", timeout=300)
+        self.user_model = user_model
+        self.available_roles = available_roles
+        self.guild_id = guild_id
+
+        self.full_name_input = discord.ui.TextInput(
+            label="Full Name",
+            placeholder="Enter full name",
+            min_length=2,
+            max_length=100,
+        )
+        self.email_input = discord.ui.TextInput(
+            label="Email", placeholder="user@example.com", min_length=5, max_length=255
+        )
+
+        self.add_item(self.full_name_input)
+        self.add_item(self.email_input)
+
+    async def on_submit(self, interaction: discord.Interaction):
         try:
-            if interaction.response.is_done():
-                await interaction.followup.send(
-                    embed=create_error_embed(
-                        "Error", "An unexpected error occurred. Please try again."
-                    ),
-                    ephemeral=True,
-                )
-            else:
+            from cogs.admin_users import (
+                MultiRoleSelectView,
+            )  # Lazy import to prevent circular dependency
+
+            full_name = sanitize_input(self.full_name_input.value, 100)
+            email = sanitize_input(self.email_input.value.lower(), 255)
+
+            if not validate_full_name(full_name):
                 await interaction.response.send_message(
                     embed=create_error_embed(
-                        "Error", "An unexpected error occurred. Please try again."
+                        "Invalid Name", "Enter a valid full name."
                     ),
                     ephemeral=True,
                 )
-        except:
-            pass
+                return
+            if not validate_email(email):
+                await interaction.response.send_message(
+                    embed=create_error_embed(
+                        "Invalid Email", "Enter a valid email address."
+                    ),
+                    ephemeral=True,
+                )
+                return
+
+            existing = await self.user_model.get_user_by_email(self.guild_id, email)
+            if existing:
+                await interaction.response.send_message(
+                    embed=create_error_embed(
+                        "Email Exists",
+                        f"User with `{email}` already exists in this server.",
+                    ),
+                    ephemeral=True,
+                )
+                return
+
+            view = MultiRoleSelectView(
+                self.user_model,
+                self.guild_id,
+                full_name,
+                email,
+                self.available_roles,
+                interaction.user,
+            )
+
+            embed = discord.Embed(
+                title="📋 Select Role(s)",
+                description=f"**Name:** {full_name}\n**Email:** {email}\nSelect one or more roles for this user:",
+                color=discord.Color.blue(),
+            )
+            await interaction.response.send_message(
+                embed=embed, view=view, ephemeral=True
+            )
+
+        except Exception as e:
+            logger.error(f"Error in CreateUserModal: {e}\n{traceback.format_exc()}")
+            await interaction.response.send_message(
+                embed=create_error_embed("Error", "Unexpected error occurred."),
+                ephemeral=True,
+            )
 
 
-# SignupModal removed since signup is now admin-only
-# Users are created via /create_user command
+# -------------------------------------------------------------
+# 🔹 UPDATE USER MODAL (for admins)
+# -------------------------------------------------------------
+class UpdateUserModal(discord.ui.Modal):
+    def __init__(self, user_model, user_data: dict, available_roles: list):
+        super().__init__(title="Update User", timeout=300)
+        self.user_model = user_model
+        self.user_data = user_data
+        self.available_roles = available_roles
+
+        self.full_name_input = discord.ui.TextInput(
+            label="Full Name",
+            default=user_data["full_name"],
+            min_length=2,
+            max_length=100,
+        )
+        self.email_input = discord.ui.TextInput(
+            label="Email",
+            default=user_data["email"],
+            min_length=5,
+            max_length=255,
+        )
+
+        self.add_item(self.full_name_input)
+        self.add_item(self.email_input)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        try:
+            from cogs.admin_users import MultiRoleSelectView
+
+            full_name = sanitize_input(self.full_name_input.value, 100)
+            email = sanitize_input(self.email_input.value.lower(), 255)
+
+            if not validate_full_name(full_name) or not validate_email(email):
+                await interaction.response.send_message(
+                    embed=create_error_embed(
+                        "Invalid Input", "Enter valid name and email."
+                    ),
+                    ephemeral=True,
+                )
+                return
+
+            existing_roles = self.user_data.get("designation", [])
+            if isinstance(existing_roles, str):
+                existing_roles = [existing_roles]
+
+            view = MultiRoleSelectView(
+                self.user_model,
+                interaction.guild.id,
+                full_name,
+                email,
+                self.available_roles,
+                interaction.user,
+                existing_roles,
+                self.user_data,
+            )
+
+            embed = discord.Embed(
+                title="📋 Update User Roles",
+                description=f"**Current Roles:** {', '.join(existing_roles)}\nSelect new roles:",
+                color=discord.Color.blue(),
+            )
+            await interaction.response.send_message(
+                embed=embed, view=view, ephemeral=True
+            )
+
+        except Exception as e:
+            logger.error(f"Error in UpdateUserModal: {e}\n{traceback.format_exc()}")
+            await interaction.response.send_message(
+                embed=create_error_embed("Error", "Unexpected error occurred."),
+                ephemeral=True,
+            )

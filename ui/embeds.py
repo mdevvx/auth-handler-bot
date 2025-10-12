@@ -18,7 +18,7 @@ def create_auth_embed() -> discord.Embed:
         title="🔐 Authentication Portal",
         description=(
             "Welcome! Please authenticate to access the server.\n\n"
-            "**New User?** Click **Sign Up** to create an account.\n"
+            "**New User?** Request **Admin** for an account.\n"
             "**Existing User?** Click **Login** to access your account.\n\n"
             "Your credentials will be sent to you privately."
         ),

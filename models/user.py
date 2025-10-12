@@ -19,6 +19,60 @@ class UserModel:
         self.table_name = "users"
         self.history_table = "login_history"
 
+    async def save_login_history(
+        self, guild_id: int, discord_user_id: int, email: str, success: bool
+    ):
+        """
+        Save a login/logout event to Supabase login_history table.
+        """
+        try:
+            supabase = get_supabase_client()
+            record = {
+                "guild_id": guild_id,
+                "discord_user_id": discord_user_id,
+                "email": email,
+                "success": success,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+
+            response = supabase.table("login_history").insert(record).execute()
+            if not response.data:
+                logger.error(
+                    f"⚠️ Supabase returned empty response while saving login history for {email}"
+                )
+                return False
+
+            logger.info(f"✅ Saved login history: {email} (sucess={success})")
+            return True
+
+        except Exception as e:
+            logger.error(f"Error saving login history: {e}\n{traceback.format_exc()}")
+            return False
+
+    async def find_users_with_role(self, guild_id: int, role_name: str):
+        """
+        Return all users who have the given role in their designation list.
+        Works with JSONB (multi-role) field.
+        """
+        try:
+            supabase = get_supabase_client()
+
+            response = (
+                supabase.table(self.table_name)
+                .select("*")
+                .contains("designation", [role_name])
+                .eq("guild_id", guild_id)
+                .execute()
+            )
+
+            return response.data or []
+
+        except Exception as e:
+            logger.error(
+                f"Error finding users with role '{role_name}': {e}\n{traceback.format_exc()}"
+            )
+            return []
+
     async def create_user(
         self,
         guild_id: int,
@@ -49,14 +103,23 @@ class UserModel:
             if not password:
                 password = generate_password()
 
-            # Create user data
+            # Normalize designation (support single or multiple roles)
+            if isinstance(designation, str):
+                designation_value = designation.strip()
+            elif isinstance(designation, list):
+                designation_value = [
+                    d.strip() for d in designation if isinstance(d, str)
+                ]
+            else:
+                designation_value = []
+
             user_data = {
-                "guild_id": guild_id,
+                "guild_id": int(guild_id),
                 "discord_user_id": discord_user_id,
                 "full_name": full_name.strip(),
                 "email": email.strip().lower(),
                 "password": password,  # In production, this should be hashed
-                "designation": designation.strip(),
+                "designation": designation_value,
                 "created_at": datetime.now(timezone.utc).isoformat(),
                 "updated_at": datetime.now(timezone.utc).isoformat(),
             }

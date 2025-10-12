@@ -597,7 +597,7 @@ class AuthCog(commands.Cog):
                 await interaction.response.send_message(
                     embed=create_error_embed(
                         "Already Logged In",
-                        f"You already have the **{user_roles[0].name}** role!\n\nLogout first to login again.",
+                        f"You already have the **{user_roles[0].name}** role!\n\nNo need to login.",
                     ),
                     ephemeral=True,
                 )

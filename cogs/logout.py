@@ -14,6 +14,7 @@ from models.server_config import ServerConfigModel
 from ui.views import LogoutView
 from ui.embeds import create_logout_embed, create_success_embed, create_error_embed
 from utils.logger import logger
+from datetime import datetime, timezone
 
 
 class LogoutCog(commands.Cog):
@@ -23,6 +24,59 @@ class LogoutCog(commands.Cog):
         self.bot = bot
         self.config_model = ServerConfigModel()
         logger.info("LogoutCog initialized")
+
+    # -------------------------------------------------------------
+    # 🔹 Helper for recording logout activity (used by LogoutView)
+    # -------------------------------------------------------------
+    async def record_logout(self, interaction: discord.Interaction):
+        """
+        Called when a user logs out (button click).
+        Records logout in Supabase and logs the event.
+        """
+        try:
+            guild = interaction.guild
+            member = interaction.user
+
+            # ✅ Fetch user info from DB
+            user_data = await self.user_model.get_user_by_discord_id(
+                guild.id, member.id
+            )
+            if not user_data:
+                logger.warning(f"No user found for logout: {member} ({member.id})")
+                return
+
+            email = user_data.get("email", "Unknown")
+
+            # ✅ Save logout event
+            await self.user_model.save_login_history(
+                guild_id=guild.id,
+                discord_user_id=member.id,
+                email=email,
+                success=False,
+            )
+
+            logger.info(
+                f"Logout recorded for {member} ({member.id}) in guild {guild.id}"
+            )
+
+            # ✅ Create audit log embed
+            log_embed = discord.Embed(
+                title="🔒 User Logged Out",
+                color=discord.Color.red(),
+                timestamp=datetime.now(timezone.utc),
+            )
+            log_embed.add_field(
+                name="👤 User", value=f"{member.mention} ({member.id})", inline=False
+            )
+            log_embed.add_field(name="📧 Email", value=f"`{email}`", inline=True)
+            log_embed.set_thumbnail(url=member.display_avatar.url)
+            log_embed.set_footer(text=f"Guild: {guild.name}")
+
+            # Send to the same logging channel used for login events
+            await self.send_log_message(guild, log_embed)
+
+        except Exception as e:
+            logger.error(f"Error recording logout: {e}\n{traceback.format_exc()}")
 
     @commands.Cog.listener()
     async def on_ready(self):
