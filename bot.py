@@ -29,7 +29,12 @@ class AuthBot(commands.Bot):
         """Load all cogs before bot starts"""
         logger.info("Loading cogs...")
 
-        cogs_to_load = ["cogs.auth", "cogs.logout", "cogs.admin_users"]  # Add this line
+        cogs_to_load = [
+            "cogs.auth",
+            "cogs.logout",
+            "cogs.admin_users",
+            "cogs.user_stats",
+        ]
 
         for cog in cogs_to_load:
             try:

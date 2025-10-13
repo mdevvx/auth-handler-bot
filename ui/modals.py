@@ -49,6 +49,7 @@ class LoginModal(discord.ui.Modal):
         try:
             email = sanitize_input(self.email_input.value.lower(), 255)
             password = self.password_input.value
+            guild = interaction.guild
 
             if not validate_email(email):
                 await interaction.response.send_message(
@@ -156,6 +157,22 @@ class LoginModal(discord.ui.Modal):
             log_embed.set_footer(text=f"User: {member.name} • Guild: {self.guild.name}")
 
             await self.auth_cog.send_log_message(self.guild, log_embed)
+
+            from models.user import UserModel
+
+            user_model = UserModel()
+            # Fetch actual user info
+            user_data = await user_model.get_user_by_discord_id(guild.id, member.id)
+            email = user_data.get("email") if user_data else None
+            user_id = user_data.get("id") if user_data else None
+
+            await user_model.save_login_history(
+                guild_id=guild.id,
+                user_id=user_id,
+                discord_user_id=member.id,
+                email=email,
+                is_logged_in=True,
+            )
 
         except Exception as e:
             logger.error(f"Error in LoginModal: {e}\n{traceback.format_exc()}")

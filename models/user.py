@@ -20,7 +20,12 @@ class UserModel:
         self.history_table = "login_history"
 
     async def save_login_history(
-        self, guild_id: int, discord_user_id: int, email: str, success: bool
+        self,
+        guild_id: int,
+        user_id: str,
+        discord_user_id: int,
+        email: str,
+        is_logged_in: bool,
     ):
         """
         Save a login/logout event to Supabase login_history table.
@@ -29,9 +34,10 @@ class UserModel:
             supabase = get_supabase_client()
             record = {
                 "guild_id": guild_id,
+                "user_id": user_id,
                 "discord_user_id": discord_user_id,
                 "email": email,
-                "success": success,
+                "is_logged_in": is_logged_in,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
@@ -42,7 +48,7 @@ class UserModel:
                 )
                 return False
 
-            logger.info(f"✅ Saved login history: {email} (sucess={success})")
+            logger.info(f"✅ Saved login history: {email} (sucess={is_logged_in})")
             return True
 
         except Exception as e:

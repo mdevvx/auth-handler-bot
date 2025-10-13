@@ -152,7 +152,8 @@ class AuthCog(commands.Cog):
 
             if success:
                 await interaction.response.send_message(
-                    f"✅ Added **{role.name}** to signup role options!", ephemeral=True
+                    f"✅ Added **{role.mention}** to signup role options!",
+                    ephemeral=True,
                 )
                 logger.info(
                     f"Role {role.name} added to signup options in guild {guild.name} by {interaction.user}"
@@ -188,7 +189,7 @@ class AuthCog(commands.Cog):
 
             if success:
                 await interaction.response.send_message(
-                    f"✅ Removed **{role.name}** from signup role options!",
+                    f"✅ Removed **{role.mention}** from signup role options!",
                     ephemeral=True,
                 )
                 logger.info(
