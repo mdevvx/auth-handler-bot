@@ -39,9 +39,9 @@ class AuthBot(commands.Bot):
         for cog in cogs_to_load:
             try:
                 await self.load_extension(cog)
-                logger.info(f"✓ Loaded {cog}")
+                logger.info(f"✅ Loaded {cog}")
             except Exception as e:
-                logger.error(f"✗ Failed to load {cog}: {e}")
+                logger.error(f"❌ Failed to load {cog}: {e}")
 
         logger.info("All cogs loaded successfully!")
 
