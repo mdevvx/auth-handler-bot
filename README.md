@@ -9,26 +9,26 @@ This bot allows administrators to manage users, roles, and authentication channe
 
 ### 🔐 Authentication System
 
--   `/setup_auth` — Posts the login portal with a **Login** button.
--   `/login` — Users log in with **email + password**.
--   First-time logins automatically link Discord accounts.
--   Roles are assigned automatically on successful login.
+* `/setup_auth` — Posts the login portal with a **Login** button.
+* `/login` — Users log in with **email + password**.
+* First-time logins automatically link Discord accounts.
+* Roles are assigned automatically on successful login.
 
 ### 👋 Logout System
 
--   `/setup_logout` — Posts a **Logout** embed with a logout button.
--   Users can confirm logout and have their roles removed safely.
--   Logout events are logged in Supabase and Discord log channels.
+* `/setup_logout` — Posts a **Logout** embed with a logout button.
+* Users can confirm logout and have their roles removed safely.
+* Logout events are logged in Supabase and Discord log channels.
 
 ### 🧑‍💼 Admin User Management
 
 Admins can create and manage users directly within Discord:
 
--   `/create_user` — Create a new user with one or more roles.
--   `/update_user` — Edit user info or roles.
--   `/read_user` — View specific user details.
--   `/read_all_users` — View all registered users.
--   `/delete_user` — Delete users safely (with confirmation).
+* `/create_user` — Create a new user with one or more roles.
+* `/update_user` — Edit user info or roles.
+* `/read_user` — View specific user details.
+* `/read_all_users` — View all registered users.
+* `/delete_user` — Delete users safely (with confirmation).
 
 Includes **multi-role selection**, **role mentions**, and **password auto-generation**.
 
@@ -36,31 +36,31 @@ Includes **multi-role selection**, **role mentions**, and **password auto-genera
 
 Server admins can easily configure bot channels:
 
--   `/set_login_channel` — Set the login portal channel.
--   `/set_logout_channel` — Set the logout channel.
--   `/set_logging_channel` — Set the log channel for audit messages.
--   `/view_config` — Display current configuration and setup tips.
+* `/set_login_channel` — Set the login portal channel.
+* `/set_logout_channel` — Set the logout channel.
+* `/set_logging_channel` — Set the log channel for audit messages.
+* `/view_config` — Display current configuration and setup tips.
 
 ### 🧾 Role Management
 
--   `/add_signup_role` — Add a role to signup options.
--   `/remove_signup_role` — Remove a signup role.
--   `/list_signup_roles` — View all configured signup roles.
--   `/clear_signup_roles` — Remove all signup roles.
+* `/add_signup_role` — Add a role to signup options.
+* `/remove_signup_role` — Remove a signup role.
+* `/list_signup_roles` — View all configured signup roles.
+* `/clear_signup_roles` — Remove all signup roles.
 
 ### 📊 User Statistics
 
 Track user activity over time:
 
--   `/user_stats period:<day|week|month|year>`
-    → Shows login/logout count and active hours.
--   Admins can view stats for **other users** too.
+* `/user_stats period:<day|week|month|year>`
+  → Shows login/logout count and active hours.
+* Admins can view stats for **other users** too.
 
 ### 🧠 Utility Commands
 
--   `/help` — Displays all bot commands and usage.
--   `!sync` — Manually sync slash commands.
--   `!botinfo` — Display bot info, uptime, latency, and command list.
+* `/help` — Displays all bot commands and usage.
+* `!sync` — Manually sync slash commands.
+* `!botinfo` — Display bot info, uptime, latency, and command list.
 
 ---
 
@@ -156,23 +156,23 @@ python bot.py
 
 1. **Set Channels:**
 
-    - `/set_login_channel #auth-login`
-    - `/set_logout_channel #auth-logout`
-    - `/set_logging_channel #auth-logs`
+   * `/set_login_channel #auth-login`
+   * `/set_logout_channel #auth-logout`
+   * `/set_logging_channel #auth-logs`
 
 2. **Add Roles for Signup:**
 
-    - `/add_signup_role @Member`
-    - `/add_signup_role @VIP`
+   * `/add_signup_role @Member`
+   * `/add_signup_role @VIP`
 
 3. **Post Authentication Interfaces:**
 
-    - In login channel: `/setup_auth`
-    - In logout channel: `/setup_logout`
+   * In login channel: `/setup_auth`
+   * In logout channel: `/setup_logout`
 
 4. **Verify Configuration:**
 
-    - `/view_config`
+   * `/view_config`
 
 ---
 
@@ -203,17 +203,17 @@ python bot.py
 
 Logs are stored in the `/logs` directory:
 
--   `bot_YYYYMMDD.log` — All logs
--   `errors_YYYYMMDD.log` — Error-only logs
+* `bot_YYYYMMDD.log` — All logs
+* `errors_YYYYMMDD.log` — Error-only logs
 
 ---
 
 ## 🛠️ Development Notes
 
--   All commands use **slash commands** (`/`).
--   Supports **multi-server** configurations.
--   Fully **async**, built using `discord.py 2.x`.
--   Login/logout events are logged both in **Discord** and **Supabase**.
+* All commands use **slash commands** (`/`).
+* Supports **multi-server** configurations.
+* Fully **async**, built using `discord.py 2.x`.
+* Login/logout events are logged both in **Discord** and **Supabase**.
 
 ---
 
@@ -226,3 +226,5 @@ Logs are stored in the `/logs` directory:
 ## 🪪 License
 
 MIT License © 2025 Auth Handler Bot Team
+
+Would you like me to include a **Quick Start (Developer)** section with steps for setting up Supabase tables automatically (SQL schema)?
